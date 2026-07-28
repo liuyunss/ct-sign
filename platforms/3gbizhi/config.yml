@@ -4,6 +4,8 @@
 # 登录方式：ThinkPHP CSRF(__token__) + POST /api/user/login
 #           （由 common/login.py 的 thinkphp_login 处理，login_type: thinkphp）
 # 签到接口：GET /api/user/checkin.html（需登录态，返回 JSON {code,msg}）
+#   实测：未登录返回 {"code":401,"msg":"请登录后操作"}（路径正确）
+#   注意：请求必须带 Referer 头，否则腾讯 EdgeOne WAF 会拦截返回 404 "An error occurred"
 # 引擎：api（标准 JSON 接口流，复用现有引擎，无需新写引擎）
 # 多账号凭证（每平台最多 2 个变量名，见 docs/config-guide.md）：
 #   · CT_3GBIZHI_COOKIE   仅 Cookie，多个用 & 或换行分隔（最简单）。
@@ -36,11 +38,12 @@ tasks:
   - name: 每日签到
     type: sign
     url: "/api/user/checkin.html"
-    method: post
+    method: get
     encoding: utf-8
-    # 站点以 XHR 调用该接口，带上该头更贴近浏览器；缺失时部分部署可能 403
+    # 站点以 XHR 调用该接口；带 Referer 防 EdgeOne WAF 拦截（实测缺 Referer 会 404）
     headers:
       X-Requested-With: "XMLHttpRequest"
+      Referer: "https://www.3gbizhi.com/user/index.html"
     code_field: code
     success_codes: [1]           # 命中视为成功；若站点用其他成功码，改这里（api 引擎 JSON 优先判定）
     success_keywords:
