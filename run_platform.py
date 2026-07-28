@@ -45,7 +45,6 @@ def main(name=None):
 
     results = [s.run() for s in signers]
     summary = "\n".join(str(r) for r in results)
-    print(summary)
     notify(f"CT-Sign · {signers[0].platform}", summary)
 
 

@@ -53,7 +53,6 @@ def main():
     lines = [str(r) for r in results]
     ok = sum(1 for r in results if r.success)
     summary = f"共 {len(results)} 个任务，成功 {ok}，失败 {len(results) - ok}\n" + "\n".join(lines)
-    print(summary)
     notify("CT-Sign 签到汇总", summary)
 
 

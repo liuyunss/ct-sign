@@ -36,7 +36,7 @@ tasks:
   - name: 每日签到
     type: sign
     url: "/api/user/checkin.html"
-    method: get
+    method: post
     encoding: utf-8
     # 站点以 XHR 调用该接口，带上该头更贴近浏览器；缺失时部分部署可能 403
     headers:
