@@ -150,4 +150,4 @@ login:
 CT_FULIBA_COOKIE="你的cookie"
 CT_PROXY="http://127.0.0.1:7890"
 ```
-然后本地运行 `python run_platform.py fuliba` 验证。
+然后本地运行 `python scripts/run_platform.py fuliba`（或用根目录 `python sign_fuliba.py`）验证。

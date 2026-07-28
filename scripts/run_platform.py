@@ -1,11 +1,11 @@
 """运行单个平台的所有任务。
 
 用法：
-  python run_platform.py <平台名>
-  python run_platform.py fuliba
+  python scripts/run_platform.py <平台名>
+  python scripts/run_platform.py fuliba
 
-青龙定时任务命令：
-  task run_platform.py fuliba
+青龙定时任务命令（入口为根目录 sign_<平台>.py，它转发到这里）：
+  task sign_fuliba.py
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ from __future__ import annotations
 import os
 import sys
 
-ROOT = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 

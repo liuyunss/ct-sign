@@ -5,11 +5,11 @@
   2) 依赖就绪后，定时任务由 ql repo 白名单 sign_ 自动建出（每个平台一行任务，
      无需本脚本建任务，也不依赖青龙 API 令牌）。
 
-注：init.py 现在只做「野任务清理」兜底工具（见 init.py 说明），不再建任务；
+注：init.py 现在只做「野任务清理」兜底工具（见 scripts/init.py 说明），不再建任务；
 正常用 ql repo 订阅不需要调 init.py。
 
 青龙「添加仓库」时的初始化命令填写：
-  init.sh
+  scripts/init.sh
 """
 
 #!/usr/bin/env bash
@@ -17,9 +17,9 @@ set -e
 
 # 定位仓库根目录：优先脚本所在目录；找不到 requirements.txt 则去 /ql/data/repo/<同名目录>
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ROOT_DIR="$SCRIPT_DIR"
-if [ ! -f "$SCRIPT_DIR/requirements.txt" ]; then
-  _REPO="/ql/data/repo/$(basename "$SCRIPT_DIR")"
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+if [ ! -f "$ROOT_DIR/requirements.txt" ]; then
+  _REPO="/ql/data/repo/$(basename "$ROOT_DIR")"
   [ -f "$_REPO/requirements.txt" ] && ROOT_DIR="$_REPO"
 fi
 cd "$ROOT_DIR"

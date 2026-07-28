@@ -31,7 +31,7 @@ cp templates/forum_sign.yml platforms/<你的平台>/config.yml
    - 签到页 HTML 里搜 `formhash`，确认正则能匹配。
    - 点「签到」按钮，看它 POST 到哪个 URL、提交了哪些字段。
 2. 把这些信息填进模板。
-3. 本地 `python run_platform.py <平台>` 跑一次，看输出：
+3. 本地 `python scripts/run_platform.py <平台>` 跑一次（或用根目录 `python sign_<平台>.py`），看输出：
    - 命中 `fail_keywords` → 调整关键词或 payload。
    - 输出“无法判定”→ 看响应片段，补 `success_keywords` / `already_keywords`。
 

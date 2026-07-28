@@ -4,13 +4,13 @@
 直接建成一行定时任务，无需本脚本、也不依赖青龙 API 令牌，天然无野任务。
 
 本脚本仅用于「手动兜底清理」：当某些原因（旧黑名单命令、手动误操作）在青龙里残留了
-xxx.py / __init__.py / common/*.py / run_*.py / init.py 这类文件名式野任务时，
-在青龙容器内运行 `python3 init.py` 即可把它们清掉。
+xxx.py / __init__.py / common/*.py / scripts/*.py / init.py 这类文件名式野任务时，
+在青龙容器内运行 `python3 scripts/init.py` 即可把它们清掉。
 
 用法：
-  python3 init.py            # 清理野任务（默认）
-  python3 init.py --dry-run  # 只列出会清理的，不删除
-  python3 init.py --clean    # 同默认（显式写法）
+  python3 scripts/init.py            # 清理野任务（默认）
+  python3 scripts/init.py --dry-run  # 只列出会清理的，不删除
+  python3 scripts/init.py --clean    # 同默认（显式写法）
 
 安全边界：本脚本只清理「本仓库目录内、引用 .py 且不是 sign_ 入口」的任务，
 不会动你其它仓库或无关任务。
@@ -21,7 +21,7 @@ from __future__ import annotations
 import os
 import sys
 
-ROOT = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
@@ -32,7 +32,8 @@ PREFIX = "CT-Sign"
 REPO_DIR = os.path.basename(ROOT)
 
 # 已知内部文件名兜底（仅当出现在本仓库目录内时才算野任务）
-STRAY_HINTS = ("run_platform.py", "run_all.py", "init.py", "__init__.py", "common/", "engines/")
+STRAY_HINTS = ("scripts/run_platform.py", "scripts/run_all.py", "scripts/init.py",
+               "init.py", "__init__.py", "common/", "engines/")
 
 
 def _is_stray(task: dict) -> bool:

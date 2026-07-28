@@ -12,7 +12,7 @@
 
 ```
 青龙「脚本管理」(ql repo 拉入)
-   └─ 定时任务 task run_all.py / run_platform.py <平台>
+   └─ 定时任务 task sign_all.py / sign_<平台>.py（根目录符号链接 → scripts/run_all.py / scripts/run_platform.py <平台>）
         └─ common/loader.py 读取 platforms/<名>/config.yml
              └─ 按 engine 名映射出 Signer（ForumSigner / ApiSigner）
                   └─ BaseSigner.run()：拆分多账号 → 逐个 _run_one()
@@ -46,9 +46,9 @@
 
 ## 调度方式
 
-- **每平台独立任务**：`task run_platform.py <平台>`，失败隔离、可单独补签。
-- **一键任务**：`task run_all.py`，自动发现并跑全部。
-- **自动建任务**：`init.sh`（被 `ql repo` 初始化命令调用）读取所有平台，在青龙内自动建任务，免 key。
+- **每平台独立任务**：`task sign_<平台>.py`（→ scripts/run_platform.py <平台>），失败隔离、可单独补签。
+- **一键任务**：`task sign_all.py`（→ scripts/run_all.py），自动发现并跑全部。
+- **自动建任务**：`scripts/init.sh`（被 `ql repo` 初始化命令调用）读取所有平台，在青龙内自动建任务，免 key。
 
 ## 扩展路线（已预留接口）
 

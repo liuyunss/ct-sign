@@ -32,17 +32,25 @@ ct-sign/
 ├─ platforms/         # 个性化：每个平台一个目录，只放 config.yml
 │  ├─ _template/      # 示例（不直接运行）
 │  └─ fuliba/
+├─ signs/             # 各平台签到入口脚本（sign_*.py 本体）
+│  ├─ sign_fuliba.py
+│  ├─ sign_pcbeta.py
+│  └─ ...（每个平台一个，约定只一行 main("平台key")）
+├─ scripts/           # 内部通用脚本（不被 ql repo 白名单匹配，不会建成任务）
+│  ├─ run_all.py      # 一键跑全部（sign_all.py 转发到这里）
+│  ├─ run_platform.py # 单平台：python scripts/run_platform.py fuliba
+│  ├─ init.sh         # ql repo 初始化命令：装依赖（任务由白名单 sign_ 自动建）
+│  └─ init.py         # 手动兜底工具：仅清理野任务（python3 scripts/init.py --dry-run）
+├─ sign_*.py          # 根目录符号链接 → signs/<同名>.py（ql repo 白名单 sign_ 需要入口在根目录）
 ├─ templates/         # 主模板 forum_sign.yml（复制即用）
 ├─ config/            # 全局配置模板
-├─ run_all.py         # 一键跑全部
-├─ run_platform.py    # 单平台：python run_platform.py fuliba
-├─ init.sh            # ql repo 初始化命令：装依赖（任务由白名单 sign_ 自动建）
-├─ init.py            # 手动兜底工具：仅清理野任务（python3 init.py --dry-run）
 ├─ requirements.txt
 ├─ README.md
 ├─ LICENSE
 └─ docs/              # 架构 / 配置 / 模板 / 加平台
 ```
+
+> **目录布局说明**：`sign_*.py` 入口统一收进 `signs/`，根目录只留指向它们的符号链接（满足 `ql repo` 白名单 `sign_` 必须在根目录的要求）；`run_all.py` / `run_platform.py` / `init.py` / `init.sh` 这类内部脚本收进 `scripts/`。这样仓库根目录保持干净，且 `ql repo` 仍能正确建出每个平台一行任务。
 
 ## 快速开始（青龙里）
 
@@ -77,10 +85,10 @@ ql repo https://github.com/liuyunss/ct-sign.git "sign_" "" "init.sh" "master"
 > 若重新拉取后仍残留野任务，可在青龙「终端」手动兜底清理（只删本仓库内的野任务，不碰其它任务）：
 > ```bash
 > cd /ql/data/repo/liuyunss_ct-sign_master   # 目录名以实际为准
-> python3 init.py --dry-run   # 先预览会清理哪些
-> python3 init.py             # 确认无误后再执行清理
+> python3 scripts/init.py --dry-run   # 先预览会清理哪些
+> python3 scripts/init.py             # 确认无误后再执行清理
 > ```
-> 注：`init.py` 现在只做**野任务清理**，不再建任务（建任务由 `ql repo` 白名单 `sign_*` 负责），正常用 ql repo 订阅不需要它。
+> 注：`init.py` 现在位于 `scripts/` 下，只做**野任务清理**，不再建任务（建任务由 `ql repo` 白名单 `sign_*` 负责），正常用 ql repo 订阅不需要它。
 
 ### 2. 添加环境变量（值换成你自己的；多账号用 `&` 或换行分隔）
 
@@ -109,8 +117,11 @@ ql env add 'CT_PINGGU_COOKIE=粘贴的cookie'
 ### 3. 立即跑一次验证（也可等每天 00:01 自动触发）
 
 ```bash
-task run_all.py                 # 全部平台一起签
-task run_platform.py youjiaoku  # 只签某个平台
+task sign_all.py                 # 全部平台一起签（根目录符号链接 → scripts/run_all.py）
+task sign_youjiaoku.py           # 只签某个平台（根目录符号链接 → scripts/run_platform.py youjiaoku）
+# 本地调试也可直接：
+python scripts/run_all.py
+python scripts/run_platform.py youjiaoku
 ```
 
 ### 4.（可选）随机延迟错峰

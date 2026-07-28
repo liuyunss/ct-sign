@@ -1,6 +1,6 @@
 # 如何新增一个平台（论坛签到）
 
-照做 5 步，约 5 分钟。以「示例论坛 example」为例。新增后 `run_all.py` 会自动包含它。
+照做 5 步，约 5 分钟。以「示例论坛 example」为例。新增后 `sign_all.py`（scripts/run_all.py）会自动包含它。
 
 ## 1. 建目录 + 复制模板
 
@@ -44,7 +44,9 @@ CT_EXAMPLE_AUTH=你的cookie||你的账号||你的密码
 ## 4. 手动核对
 
 ```bash
-python run_platform.py example
+python scripts/run_platform.py example
+# 或等价地用根目录符号链接：
+python sign_example.py
 ```
 
 看输出是否「签到成功」。若命中失败词或“无法判定”，按实际页面文案调整
@@ -52,8 +54,8 @@ python run_platform.py example
 
 ## 5. 建定时任务 / 交给 init
 
-- 手动：青龙「定时任务」新建，命令 `task run_platform.py example`，计划每天 00:01。
-- 自动：若用 `ql repo` 订阅，已包含的 `init.sh` 会自动把这个平台任务建好，无需手动。
+- 手动：青龙「定时任务」新建，命令 `task sign_example.py`（根目录符号链接 → scripts/run_platform.py example），计划每天 00:01。
+- 自动：若用 `ql repo` 订阅，已包含的 `scripts/init.sh` 会自动把这个平台任务建好，无需手动。
 
 > 不同论坛的签到插件与返回文案不同，第一次务必手动跑一遍核对。
 > 若不是 Discuz 论坛（如走 JSON 接口），改 `engine: api` 并按 `common/engines/api.py` 注释填 `url/json/code_field`。

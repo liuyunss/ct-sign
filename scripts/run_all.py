@@ -1,7 +1,7 @@
 """一键运行所有平台的全部任务。
 
-青龙定时任务命令：
-  task run_all.py
+青龙定时任务命令（入口为根目录 sign_all.py，它转发到这里）：
+  task sign_all.py
 
 自动发现 platforms/ 下所有含 config.yml 的平台并依次执行（_ 开头目录跳过）。
 """
@@ -11,7 +11,7 @@ from __future__ import annotations
 import os
 import sys
 
-ROOT = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
