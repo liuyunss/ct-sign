@@ -43,7 +43,6 @@ ct-sign/
 │  ├─ run_platform.py # 单平台：python scripts/run_platform.py fuliba
 │  ├─ init.sh         # ql repo 初始化命令：装依赖（任务由白名单 sign_ 自动建）
 │  └─ init.py         # 手动兜底工具：仅清理野任务（python3 scripts/init.py --dry-run）
-├─ sign_*.py          # 根目录符号链接 → signs/<同名>.py（ql repo 白名单 sign_ 需要入口在根目录）
 ├─ templates/         # 主模板 forum_sign.yml（复制即用）
 ├─ config/            # 全局配置模板
 ├─ requirements.txt
@@ -52,7 +51,7 @@ ct-sign/
 └─ docs/              # 架构 / 配置 / 模板 / 加平台
 ```
 
-> **目录布局说明**：`sign_*.py` 入口统一收进 `signs/`，根目录只留指向它们的符号链接（满足 `ql repo` 白名单 `sign_` 必须在根目录的要求）；`run_all.py` / `run_platform.py` / `init.py` / `init.sh` 这类内部脚本收进 `scripts/`。这样仓库根目录保持干净，且 `ql repo` 仍能正确建出每个平台一行任务。
+> **目录布局说明**：`sign_*.py` 入口统一收进 `signs/`（青龙 `ql repo` 的白名单 `sign_` 会扫描整个仓库，直接命中 `signs/` 下的入口，无需在根目录放符号链接）；`run_all.py` / `run_platform.py` / `init.py` / `init.sh` 这类内部脚本收进 `scripts/`，文件名不匹配白名单，不会建成任务。这样仓库根目录保持干净，且 `ql repo` 能正确建出每个平台一行任务，也不会因根目录与 `signs/` 同时存在 `sign_*` 而重复建任务。
 
 ## 快速开始（青龙里）
 
@@ -121,8 +120,8 @@ ql env add 'CT_55188_COOKIE=粘贴的cookie'
 ### 3. 立即跑一次验证（也可等每天 00:01 自动触发）
 
 ```bash
-task sign_all.py                 # 全部平台一起签（根目录符号链接 → scripts/run_all.py）
-task sign_youjiaoku.py           # 只签某个平台（根目录符号链接 → scripts/run_platform.py youjiaoku）
+task sign_all.py                 # 全部平台一起签（signs/sign_all.py → scripts/run_all.py）
+task sign_youjiaoku.py           # 只签某个平台（signs/sign_youjiaoku.py → scripts/run_platform.py youjiaoku）
 # 本地调试也可直接：
 python scripts/run_all.py
 python scripts/run_platform.py youjiaoku
