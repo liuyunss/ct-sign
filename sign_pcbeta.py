@@ -8,6 +8,10 @@ import os
 import sys
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
+# 兼容青龙 scripts 目录：依赖文件（run_platform.py / common/ 等）在 /ql/data/repo/<同名目录>
+_ql_repo = os.path.join("/ql/data/repo", os.path.basename(ROOT))
+if os.path.isdir(_ql_repo):
+    ROOT = _ql_repo
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 

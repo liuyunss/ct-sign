@@ -84,21 +84,24 @@ ql repo https://github.com/liuyunss/ct-sign.git "sign_" "" "init.sh" "master"
 
 ### 2. 添加环境变量（值换成你自己的；多账号用 `&` 或换行分隔）
 
-```bash
-# 福利吧（已实测，可只给账号密码自动续期）
-ql env add 'CT_FULIBA_COOKIE=粘贴的cookie'
-ql env add 'CT_FULIBA_AUTH=||yourname@example.com||你的密码'
+> **在哪加**（两种方式任选，效果一样）：
+> - **面板 UI（推荐，不用敲命令）**：左侧菜单「环境变量」→ 右上角「新建」，逐条填「名称」和「值」即可。
+> - **命令行**：在青龙容器终端（面板左侧「终端」，或 `docker exec -it ql bash`）执行下方 `ql env add '名称=值'`。
+>
+> 规则：**能账号密码自动续期的平台只填一个 `CT_<平台>_AUTH`**（一体化 `cookie||账号||密码`，cookie 段留空也行，首次登录后自动写回）；
+> **有验证码无法自动登录的平台**（幼教库 / 经管之家）只能手动填 `CT_<平台>_COOKIE`。
 
-# 狗破解 / 科学刀（均可自动登录续期）
+```bash
+# —— 账号密码自动续期（一体化 cookie||账号||密码，cookie 段留空即可）——
+ql env add 'CT_FULIBA_AUTH=||yourname@example.com||你的密码'
 ql env add 'CT_GOPOJIE_AUTH=||yourname@example.com||你的密码'
 ql env add 'CT_KXDAO_AUTH=||yourname@example.com||你的密码'
+ql env add 'CT_3GBIZHI_AUTH=||账号||密码'
+ql env add 'CT_PCBETA_AUTH=||yourname@example.com||你的密码'
 
-# 幼教库 / 经管之家（登录有滑块/极验验证码，必须手动给 cookie）
+# —— 必须手动给 cookie（登录有滑块/极验验证码，无法自动登录）——
 ql env add 'CT_YOUJIAOKU_COOKIE=粘贴的cookie'
 ql env add 'CT_PINGGU_COOKIE=粘贴的cookie'
-
-# 3G壁纸（待青龙验证）
-ql env add 'CT_3GBIZHI_AUTH=||账号||密码'
 ```
 
 取 cookie 方法见 `docs/config-guide.md`。
@@ -128,6 +131,7 @@ ql env add 'CT_RANDOM_DELAY_MIN=60'
 | 科学刀 KXDAO | https://www.kxdao.net | `CT_KXDAO_AUTH`（支持账号密码自动续期；也可只用 `CT_KXDAO_COOKIE`） | ✅ 已实测（Discuz，forum 引擎） |
 | 狗破解 GoPoJie | https://www.gopojie.com | `CT_GOPOJIE_AUTH`（支持账号密码自动续期；也可只用 `CT_GOPOJIE_COOKIE`） | ✅ 已实测（WordPress，api 引擎） |
 | 3G壁纸 | https://www.3gbizhi.com | `CT_3GBIZHI_AUTH`（支持账号密码自动续期；也可只用 `CT_3GBIZHI_COOKIE`） | ⏳ 待青龙验证（ThinkPHP，api 引擎） |
+| 远景论坛 PCBETA | https://bbs.pcbeta.com | `CT_PCBETA_AUTH`（支持账号密码自动续期；也可只用 `CT_PCBETA_COOKIE`） | ✅ 已实测（Discuz 任务系统，forum 引擎） |
 | 幼教库 YouJiaoKu | https://www.youjiaoku.com | `CT_YOUJIAOKU_COOKIE`（登录有滑块验证码，不支持账号密码，需手动提供 cookie） | ⚠️ 需手动提供 cookie（WordPress，api 引擎） |
 | 经管之家 PingGu | https://bbs.pinggu.org | `CT_PINGGU_COOKIE`（登录为自建 passport+极验滑块，不支持账号密码，需手动提供 cookie） | ⚠️ 需手动提供 cookie（Discuz+dsu_paulsign，forum 引擎） |
 
