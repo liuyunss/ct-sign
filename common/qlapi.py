@@ -14,10 +14,11 @@ import urllib.parse
 
 
 def _get_token():
-    # 1) 容器内私有令牌
-    token = os.environ.get("QL_PRIVATE_TOKEN")
-    if token:
-        return token
+    # 1) 容器内私有令牌（兼容多种环境变量名）
+    for env in ("QL_PRIVATE_TOKEN", "QL_TOKEN"):
+        token = os.environ.get(env)
+        if token:
+            return token
     # 2) 应用凭据换取
     cid = os.environ.get("QL_CLIENT_ID")
     csec = os.environ.get("QL_CLIENT_SECRET")
@@ -31,6 +32,15 @@ def _get_token():
             return (data.get("data") or {}).get("token")
         except Exception:
             return None
+    # 3) 读取青龙容器内 auth.json（最稳，容器里一定存在）
+    for path in ("/ql/config/auth.json", "/ql/data/config/auth.json"):
+        if os.path.exists(path):
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                return data.get("token") or data.get("tokens")
+            except Exception:
+                pass
     return None
 
 
