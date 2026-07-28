@@ -14,7 +14,7 @@ cp templates/forum_sign.yml platforms/<你的平台>/config.yml
 |------|--------|------|
 | `platform` | 显示名 | 出现在通知里，如 `福利吧` |
 | `base_url` | 站点域名 | 不含末尾 `/`，如 `https://www.wnflb2023.com` |
-| `cookie_env` | 环境变量名 | 前缀 `CT_`，如 `CT_FUELBA_COOKIE` |
+| `cookie_env` | 环境变量名 | 前缀 `CT_`，如 `CT_FULIBA_COOKIE` |
 | `tasks[].sign_url` | 签到页地址 | 一般 `plugin.php?id=xxx:sign` |
 | `tasks[].action_url` | 提交地址 | 同 sign_url 或带 `operation=qiandao` |
 

@@ -27,7 +27,7 @@ PREFIX = "CT-Sign"
 
 # 文件夹名 -> 中文显示名（让定时任务名字一眼能看懂）
 DISPLAY = {
-    "fuelba": "福利吧",
+    "fuliba": "福利吧",
     "gopojie": "狗破解",
     "kxdao": "科学刀",
     "youjiaoku": "幼教库",

@@ -8,5 +8,5 @@ proxy: ""               # 全局代理，如 http://127.0.0.1:7890；留空不�
 random_delay: 0         # 随机延迟秒数上限：每个账号签到前随机休眠 [random_delay_min, random_delay]，模拟用户随机触发（0=不延迟）
 random_delay_min: 0     # 随机延迟下限（秒）；random_delay_min > random_delay 时自动取等于上限
 debug: false            # 调试模式（预留）
-skip_platforms: []      # 跳过的平台目录名列表，如 ["fuelba"]
+skip_platforms: []      # 跳过的平台目录名列表，如 ["fuliba"]
 notify_title_prefix: "CT-Sign"   # 通知标题前缀

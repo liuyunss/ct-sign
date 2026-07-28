@@ -2,10 +2,10 @@
 
 用法：
   python run_platform.py <平台名>
-  python run_platform.py fuelba
+  python run_platform.py fuliba
 
 青龙定时任务命令：
-  task run_platform.py fuelba
+  task run_platform.py fuliba
 """
 
 from __future__ import annotations

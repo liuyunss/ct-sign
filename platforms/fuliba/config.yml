@@ -5,23 +5,23 @@
 # 签到方式：GET 触发，formhash 取自首页 JS（formhash=xxxx&xxxx），
 #           formhash 需原样出现在签到 URL 中两次（Discuz 插件约定）。
 # 多账号凭证（每平台最多 2 个变量名，见 docs/config-guide.md）：
-#   · CT_FUELBA_COOKIE   仅 Cookie，多个用 & 或换行分隔（最简单）。
-#   · CT_FUELBA_AUTH     一体化：每行 `cookie||账号||密码`，三段用 || 分隔，
+#   · CT_FULIBA_COOKIE   仅 Cookie，多个用 & 或换行分隔（最简单）。
+#   · CT_FULIBA_AUTH     一体化：每行 `cookie||账号||密码`，三段用 || 分隔，
 #                         任意段留空即跳过；支持换行或 & 分隔多账号。
 #                         Cookie 优先；Cookie 失败且有账号密码时自动登录刷新并写回本行。
 
 platform: 福利吧
 engine: forum
 base_url: "https://www.wnflb2023.com"   # 福利吧真实域名（已确认）
-cookie_env: CT_FUELBA_COOKIE
+cookie_env: CT_FULIBA_COOKIE
 
 # 账号密码登录（可选，与 cookie 配合实现自动续期）：
-# - 推荐用一体化变量 CT_FUELBA_AUTH（每行 cookie||账号||密码，缺哪段留空即可）。
+# - 推荐用一体化变量 CT_FULIBA_AUTH（每行 cookie||账号||密码，缺哪段留空即可）。
 # - 注意：若论坛开启登录验证码(seccode)，账号密码无法自动通过，需回退有效 cookie。
 login:
   login_page: "member.php?mod=logging&action=login"
   loginfield: email          # email | username | auto（auto 会依次尝试 email / 用户名）
-  auth_env: CT_FUELBA_AUTH   # 一体化变量名（cookie||账号||密码）
+  auth_env: CT_FULIBA_AUTH   # 一体化变量名（cookie||账号||密码）
 
 
 tasks:

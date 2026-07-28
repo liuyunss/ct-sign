@@ -31,11 +31,11 @@ ct-sign/
 │     └─ api.py        # JSON 接口流（预留）
 ├─ platforms/         # 个性化：每个平台一个目录，只放 config.yml
 │  ├─ _template/      # 示例（不直接运行）
-│  └─ fuelba/
+│  └─ fuliba/
 ├─ templates/         # 主模板 forum_sign.yml（复制即用）
 ├─ config/            # 全局配置模板
 ├─ run_all.py         # 一键跑全部
-├─ run_platform.py    # 单平台：python run_platform.py fuelba
+├─ run_platform.py    # 单平台：python run_platform.py fuliba
 ├─ init.sh / init.py  # 装依赖 + 自动建任务
 ├─ requirements.txt
 ├─ README.md
@@ -63,8 +63,8 @@ ql repo https://github.com/liuyunss/ct-sign.git "" "common/.*|init\.py" "init.sh
 
 ```bash
 # 福利吧（已实测，可只给账号密码自动续期）
-ql env add 'CT_FUELBA_COOKIE=粘贴的cookie'
-ql env add 'CT_FUELBA_AUTH=||yourname@example.com||你的密码'
+ql env add 'CT_FULIBA_COOKIE=粘贴的cookie'
+ql env add 'CT_FULIBA_AUTH=||yourname@example.com||你的密码'
 
 # 狗破解 / 科学刀（均可自动登录续期）
 ql env add 'CT_GOPOJIE_AUTH=||yourname@example.com||你的密码'
@@ -101,7 +101,7 @@ ql env add 'CT_RANDOM_DELAY_MIN=60'
 
 | 平台名字 | 网址 | 所需变量 | 状态 |
 |----------|------|----------|------|
-| 福利吧 | https://www.wnflb2023.com | `CT_FUELBA_AUTH`（支持账号密码自动续期；也可只用 `CT_FUELBA_COOKIE`） | ✅ 已实测（Discuz，forum 引擎） |
+| 福利吧 | https://www.wnflb2023.com | `CT_FULIBA_AUTH`（支持账号密码自动续期；也可只用 `CT_FULIBA_COOKIE`） | ✅ 已实测（Discuz，forum 引擎） |
 | 科学刀 KXDAO | https://www.kxdao.net | `CT_KXDAO_AUTH`（支持账号密码自动续期；也可只用 `CT_KXDAO_COOKIE`） | ✅ 已实测（Discuz，forum 引擎） |
 | 狗破解 GoPoJie | https://www.gopojie.com | `CT_GOPOJIE_AUTH`（支持账号密码自动续期；也可只用 `CT_GOPOJIE_COOKIE`） | ✅ 已实测（WordPress，api 引擎） |
 | 3G壁纸 | https://www.3gbizhi.com | `CT_3GBIZHI_AUTH`（支持账号密码自动续期；也可只用 `CT_3GBIZHI_COOKIE`） | ⏳ 待青龙验证（ThinkPHP，api 引擎） |

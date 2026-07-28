@@ -5,15 +5,15 @@
 在青龙「环境变量」里，按你的情况**选一种**填（都以前缀 `CT_` 开头）：
 
 ### 方案 A：只有 Cookie（最简单，推荐新手）
-- 名称：`CT_FUELBA_COOKIE`
+- 名称：`CT_FULIBA_COOKIE`
 - 值：浏览器复制的完整 Cookie 字符串（多账号用 `&` 或换行连）
 ```
-CT_FUELBA_COOKIE=htVC_2132_...; ...
+CT_FULIBA_COOKIE=htVC_2132_...; ...
 ```
 > Cookie 会过期，失效后在青龙里更新该值即可；或改用方案 B/C 自动续期。
 
 ### 方案 B：只有账号密码（自动登录，Cookie 失效也无所谓）
-- 名称：`CT_FUELBA_AUTH`
+- 名称：`CT_FULIBA_AUTH`
 - 值（每行一个账号，三段 `||` 分隔，**没有的部分留空**）：
 ```
 ||yourname@example.com||你的密码
@@ -21,7 +21,7 @@ CT_FUELBA_COOKIE=htVC_2132_...; ...
 > 注意：论坛若开启登录验证码则自动登录会失败，需回退方案 A 的 Cookie。福利吧目前不弹验证码。
 
 ### 方案 C：Cookie + 账号密码（推荐，优先用 cookie，失效自动登录刷新并写回）
-- 名称：`CT_FUELBA_AUTH`
+- 名称：`CT_FULIBA_AUTH`
 - 值：
 ```
 你现在的cookie||yourname@example.com||你的密码
@@ -43,9 +43,9 @@ cookie||                # 只有 cookie（也可只写 cookie，不带 ||）
 
 | 变量 | 作用 | 示例 |
 |------|------|------|
-| `CT_FUELBA_COOKIE` | 福利吧登录 Cookie（**优先使用**；失效时自动刷新并写回） | 完整 Cookie 字符串 |
+| `CT_FULIBA_COOKIE` | 福利吧登录 Cookie（**优先使用**；失效时自动刷新并写回） | 完整 Cookie 字符串 |
 | `CT_<平台>_COOKIE` | 任意新平台的 Cookie（**优先使用**；失效时自动刷新）。多个用 `&` 或换行分隔 | —— |
-| `CT_FUELBA_AUTH` | **一体化变量（推荐）**：每行 `cookie||账号||密码`，三段用 `||` 分隔，任意段留空即跳过；支持换行或 `&` 分隔多账号 | 见下文 |
+| `CT_FULIBA_AUTH` | **一体化变量（推荐）**：每行 `cookie||账号||密码`，三段用 `||` 分隔，任意段留空即跳过；支持换行或 `&` 分隔多账号 | 见下文 |
 | `CT_<平台>_AUTH` | 任意新平台的一体化变量 | 见下文 |
 | `CT_PROXY` | 全局代理（覆盖全局配置） | `http://127.0.0.1:7890` |
 | `CT_RANDOM_DELAY` | 随机延迟上限（秒）：每个账号签到前随机休眠，模拟用户随机触发，防固定节奏被识别（**默认 0=关闭**，需手动设 >0 才生效） | `5` |
@@ -117,7 +117,7 @@ login:
 1. 电脑浏览器登录目标论坛。
 2. 打开开发者工具（F12）→ Network（网络）。
 3. 刷新页面，点任意一个本站请求 → 请求头里复制完整 `Cookie` 值。
-4. 在青龙「环境变量」新增：名称 `CT_FUELBA_COOKIE`，值 = 刚复制的 Cookie。
+4. 在青龙「环境变量」新增：名称 `CT_FULIBA_COOKIE`，值 = 刚复制的 Cookie。
 5. Cookie 会过期，失效后在青龙里更新该变量即可。
 
 > Cookie 只存青龙环境变量，请勿写入代码或提交到 git。
@@ -147,7 +147,7 @@ login:
 
 仓库根目录放 `.env`（不进 git），写入上述变量，`common/config.py` 会自动加载：
 ```bash
-CT_FUELBA_COOKIE="你的cookie"
+CT_FULIBA_COOKIE="你的cookie"
 CT_PROXY="http://127.0.0.1:7890"
 ```
-然后本地运行 `python run_platform.py fuelba` 验证。
+然后本地运行 `python run_platform.py fuliba` 验证。
