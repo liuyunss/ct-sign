@@ -1,0 +1,46 @@
+# ============================================================
+# CT-Sign 平台配置模板（Discuz! 论坛）
+# ============================================================
+# 用法：
+#   1) 复制本文件到 platforms/<你的平台>/config.yml
+#   2) 改 platform / base_url / cookie_env / tasks 里的几项
+#   3) 青龙里加环境变量 <cookie_env>，值为该论坛登录 Cookie
+#   4) 手动跑一次 python run_platform.py <平台> 核对结果
+#
+# 引擎 engine: forum = Discuz! 表单流（通用，所有 Discuz 论坛适用）
+# 多任务：tasks 列表可放多个（签到/抽奖/做任务…），v1 先放签到
+# 多账号：cookie_env 里放多个 Cookie，用 & 或换行分隔，引擎自动逐个跑
+# ============================================================
+
+platform: 示例论坛          # 显示名（通知里出现）
+engine: forum              # forum=表单流论坛；api=JSON接口流（预留）
+base_url: "https://bbs.example.com"   # 站点域名（不含末尾 /）
+cookie_env: CT_EXAMPLE_COOKIE         # 青龙环境变量名（前缀 CT_）
+
+tasks:
+  - name: 每日签到
+    type: sign
+    sign_url: "plugin.php?id=dsu_paulsign:sign"          # 签到页地址
+    action_url: "plugin.php?id=dsu_paulsign:sign&operation=qiandao&infloat=1"  # 提交地址
+    method: post
+    encoding: utf-8
+    payload:                       # 提交字段；{formhash} 会自动替换
+      formhash: "{formhash}"
+      qdxq: kx                     # 心情：kx=开心（按站点可选）
+      qdmode: "1"
+      tosign: "1"
+    formhash_re: 'name="formhash" value="([a-f0-9]+)"'   # 从签到页抠 formhash 的正则
+    success_keywords:             # 命中任一 = 签到成功
+      - "签到成功"
+      - "成功签到"
+      - "恭喜"
+    already_keywords:             # 命中任一 = 今日已签（视为成功）
+      - "已经签到"
+      - "今日已"
+      - "您今天已经签到"
+      - "签到过"
+    fail_keywords:                # 命中任一 = 失败（未登录/被拦截）
+      - "登录"
+      - "未登录"
+      - "请先登录"
+      - "游客"

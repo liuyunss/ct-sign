@@ -1,0 +1,60 @@
+# 狗破解 GoPoJie 每日签到
+#
+# 站点：https://www.gopojie.com/   WordPress(ripro/zb 主题) 自定义会员站
+# 签到入口：登录后 /user 页 “签到领取1狗粮” 按钮（每日签到得“狗粮”虚拟币）
+# 机制（已实测核对，2026-07-28）：
+#   登录  POST wp-admin/admin-ajax.php  action=zb_user_login
+#         请求体 user_name / user_password / remember / nonce(取自登录页 ajax_nonce)
+#         成功返回 {"status":1,"msg":"登录成功"}，种下 wordpress_logged_in_* cookie
+#   签到  POST wp-admin/admin-ajax.php  action=zb_user_qiandao
+#         nonce 需从“已登录态”的 /user 页 ajax_nonce 动态取（无 nonce 返回“非法请求”）
+#         成功 {"status":1,"msg":"签到成功，领取(1.0)狗粮"}；今日已签 {"status":0,"msg":"今日已签到，请明日再来"}
+#
+# 多账号凭证（每平台最多 2 个变量名，见 docs/config-guide.md）：
+#   · CT_GOPOJIE_COOKIE   仅 Cookie，多个用 & 或换行分隔（最简单）。
+#   · CT_GOPOJIE_AUTH     一体化：每行 `cookie||账号||密码`，三段用 || 分隔，
+#                       任意段留空即跳过；支持换行或 & 分隔多账号。
+#                       Cookie 优先；Cookie 失败且有账号密码时自动登录刷新并写回本行。
+
+platform: 狗破解GoPoJie
+engine: api
+base_url: "https://www.gopojie.com"
+cookie_env: CT_GOPOJIE_COOKIE
+
+# 账号密码登录（可选，与 cookie 配合实现自动续期）：
+# - 推荐用一体化变量 CT_GOPOJIE_AUTH（每行 cookie||账号||密码，缺哪段留空即可）。
+# - 该站登录页无验证码输入框，可正常自动刷新（已实测）。
+login:
+  login_type: wordpress
+  login_action: zb_user_login      # WordPress admin-ajax 的登录 action
+  user_field: user_name            # 登录表单账号字段名
+  password_field: user_password    # 登录表单密码字段名
+  nonce_page: /login                # 取 ajax_nonce 的页面
+  # nonce_regex 省略则用默认： ajax_nonce["\']?\s*:\s*["\']([a-zA-Z0-9]+)
+  success_status: 1                # 登录成功判定的 status 值
+  auth_env: CT_GOPOJIE_AUTH        # 一体化变量名（cookie||账号||密码）
+
+tasks:
+  - name: 每日签到
+    url: "/wp-admin/admin-ajax.php"
+    method: post
+    headers:
+      X-Requested-With: XMLHttpRequest
+    data:
+      action: zb_user_qiandao
+      nonce: "{nonce}"              # 由下方 nonce 块动态注入（WordPress CSRF nonce）
+    # 签到前先 GET /user 取登录态的 ajax_nonce（无 nonce 会被拒“非法请求”）
+    nonce:
+      url: "/user"
+      # gopojie 实际为 ajax_nonce":"xxxx"，用不含单引号的安全写法
+      regex: 'ajax_nonce"\s*:\s*"([a-zA-Z0-9]+)'
+    # 返回 JSON：status 字段（非通用 code）。1=成功，0=已签/失败
+    code_field: status
+    success_codes: [1]
+    success_keywords:
+      - "签到成功"
+    already_keywords:
+      - "今日已签到"
+    fail_keywords:
+      - "非法请求"
+      - "未登录"

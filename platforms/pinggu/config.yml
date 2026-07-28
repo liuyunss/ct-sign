@@ -1,0 +1,65 @@
+# 经管之家 / 人大经济论坛（bbs.pinggu.org）每日签到
+#
+# 站点：https://bbs.pinggu.org/   Discuz! X 论坛（经管之家）
+# 签到插件：dsu_paulsign（打卡/每日签到）
+# 签到方式：GET 签到页 plugin.php?id=dsu_paulsign:sign 取 formhash
+#           → POST plugin.php?id=dsu_paulsign:sign&operation=qiandao&infloat=1&inajax=1
+#             请求体 formhash=<fh>&qd=1（qd 为提交按钮名，submitcheck('qd') 必须带）
+#           返回 gbk 编码的 XML/CDATA，成功含「签到成功」，已签含「已经签到」等。
+#
+# ⚠️ 重要：本占【只能走 Cookie】，无法自动登录！
+#   登录走经管之家自建 passport（post-img.datacourse.cn/passport），且带
+#   极验(Geetest)滑块验证码 + 密码 MD5 提交，程序无法自动过验证码。
+#   因此 login 段未配置；请手动获取 Cookie 后填入下方变量。
+#
+# 如何获取 Cookie（一次性，之后由 AUTH 自动维护/复用）：
+#   1. 浏览器登录 https://bbs.pinggu.org/ （过极验滑块）
+#   2. 打开 DevTools → Application/存储 → Cookies → bbs.pinggu.org
+#   3. 复制该域下全部 Cookie（关键：<pre>_sid、<pre>_auth、saltkey 等）
+#   4. 填进青龙 CT_PINGGU_COOKIE（纯 cookie），或 CT_PINGGU_AUTH 的 cookie 段：
+#        CT_PINGGU_AUTH=<你的cookie>||          （账号/密码段留空即可，本占用不到）
+#
+# 多账号凭证（每平台最多 2 个变量名，见 docs/config-guide.md）：
+#   · CT_PINGGU_COOKIE   仅 Cookie，多个用 & 或换行分隔（最简单）。
+#   · CT_PINGGU_AUTH     一体化：每行 `cookie||账号||密码`，三段用 || 分隔，
+#                       任意段留空即跳过；支持换行或 & 分隔多账号。
+#                       Cookie 优先；本占 Cookie 失败不会自动登录（极验拦），需手动更新。
+#
+# 提示：签到返回为 gbk 编码，已设 encoding=gbk 以便正确匹配中文关键词。
+#       若首次运行判定不准（无「签到成功」/「已经签到」），把运行响应贴回，我据此微调关键词。
+
+platform: 经管之家
+engine: forum
+base_url: "https://bbs.pinggu.org"
+cookie_env: CT_PINGGU_COOKIE
+
+# 本占无自动登录（极验验证码），login 段故意不配，仅 Cookie 模式。
+
+tasks:
+  - name: 每日签到
+    type: sign
+    # 签到页取 formhash（标准 Discuz 隐藏域）
+    sign_url: "plugin.php?id=dsu_paulsign:sign"
+    formhash_re: 'name="formhash" value="([^"]+)"'
+    # 真实签到接口（已确认：匿名访问返回「需要先登录」，证明端点正确）
+    action_url: "plugin.php?id=dsu_paulsign:sign&operation=qiandao&infloat=1&inajax=1"
+    method: post
+    encoding: gbk
+    payload:
+      formhash: "{formhash}"
+      qd: "1"
+    # 返回 gbk XML/CDATA，下方关键词按解码后文本匹配
+    success_keywords:
+      - "签到成功"
+      - "已连续签到"
+      - "恭喜"
+    already_keywords:
+      - "已经签到"
+      - "今日已签到"
+      - "今天已经签到"
+      - "已签过"
+    fail_keywords:
+      - "需要先登录"
+      - "请先登录"
+      - "未登录"
+      - "需要登录"

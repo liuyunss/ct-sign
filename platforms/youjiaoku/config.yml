@@ -1,0 +1,62 @@
+# 幼教库 YouJiaoKu 每日签到
+#
+# 站点：https://www.youjiaoku.com/   WordPress 自定义主题 YJK（幼儿/少儿资源下载站）
+# 登录：POST wp-admin/admin-ajax.php  action=user_signin
+#       请求体 username / password / remember / captcha_mode / _wpnonce
+#       ⚠️ 登录页带【滑块验证码】(machine-verification="slider"，captcha_mode=slider)，
+#          服务端校验滑块令牌，程序无法自动过码，登录会返回
+#          {"error":true,"msg":"环境异常，请刷新后重新提交"}。
+#          → 因此本占【不能用账号密码自动登录】，必须手动在浏览器登录后复制 cookie 使用。
+# 签到：POST wp-admin/admin-ajax.php  action=user_checkin（需登录态）
+#       返回 JSON 形如 {"error":false,"ys":"success","msg":"签到成功…"} 或 已签/未登录。
+#
+# 多账号凭证（每平台最多 2 个变量名，见 docs/config-guide.md）：
+#   · CT_YOUJIAOKU_COOKIE   仅 Cookie（★推荐：浏览器登录后复制 wordpress_logged_in_* 那段）
+#   · CT_YOUJIAOKU_AUTH     一体化：每行 `cookie||账号||密码`，三段用 || 分隔。
+#                         （本占登录有滑块验证码，cookie 段请手动填；账号密码段仅备用/记录）
+#   框架“Cookie 优先 + 账号密码自动刷新”逻辑对此站=只走 cookie（自动登录会被滑块拦）。
+
+platform: 幼教库YouJiaoKu
+engine: api
+base_url: "https://www.youjiaoku.com"
+cookie_env: CT_YOUJIAOKU_COOKIE
+
+# 账号密码登录（⚠️ 此站登录有滑块验证码，自动登录必然失败，仅作结构记录/将来去验证码可直接用）
+login:
+  login_type: wordpress
+  login_action: user_signin
+  user_field: username
+  password_field: password
+  nonce_page: /user-sign?tab=signin
+  nonce_regex: 'name="_wpnonce" value="([a-zA-Z0-9]+)"'
+  success_status: 1
+  auth_env: CT_YOUJIAOKU_AUTH
+
+tasks:
+  - name: 每日签到
+    url: "/wp-admin/admin-ajax.php"
+    method: post
+    headers:
+      X-Requested-With: XMLHttpRequest
+    data:
+      action: user_checkin
+      # 签到 nonce：已用真实登录态 cookie 在沙箱实测确认 =
+      #   参数名 security，值为首页内联的 _wpnonce（GET / 即可取到）。
+      #   实测 security=<_wpnonce> → {"msg":"签到成功！ 积分+1 ..."}。
+      security: "{nonce}"
+    nonce:
+      url: "/"
+      # 取首页内联 _wpnonce（形如 _wpnonce: 'xxxx' 或 name="_wpnonce" value="xxxx"）
+      regex: '_wpnonce\s*[:=]\s*[''"]?([a-zA-Z0-9]+)'
+    # 返回 JSON 用 error(bool)+msg，不靠固定 code 判，交给关键词兜底最稳：
+    code_field: error          # 占位字段（响应里无此名），确保不误判，走下方关键词
+    success_codes: []          # 空 → 不靠 code，纯关键词判定
+    success_keywords:
+      - "签到成功"
+    already_keywords:
+      - "今日已签到"
+      - "已签到"
+    fail_keywords:
+      - "未登录"
+      - "请登录"
+      - "环境异常"

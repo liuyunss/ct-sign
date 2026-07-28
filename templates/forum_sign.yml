@@ -1,0 +1,86 @@
+# ============================================================
+# CT-Sign 主模板：forum_sign.yml
+# ============================================================
+# 这是「论坛类签到」的唯一权威模板。新增一个论坛时：
+#   复制本文件 → platforms/<平台>/config.yml → 改几处 → 配变量（CT_<平台>_AUTH 或 _COOKIE）
+# 零代码即可接入。
+#
+# 字段说明（通用，所有论坛几乎只改这些）：
+#   platform        显示名，出现在通知里
+#   engine          forum = Discuz! 表单流；api = JSON 接口流（预留）
+#   base_url        站点域名（不含末尾 /）
+#   cookie_env      青龙环境变量名（前缀 CT_），值为登录 Cookie（可留空，用 AUTH 代替）
+#   login           【可选】账号密码登录配置（与 cookie 配合实现自动续期）；不配则只用 cookie
+#   tasks[]         任务列表，可多个（签到/抽奖/做任务…）
+#     name          任务显示名
+#     sign_url      签到页地址（用于抠 formhash）
+#     action_url    提交地址（通常与 sign_url 相同或带 operation=qiandao）
+#     method        post / get
+#     payload       提交字段，{formhash} 会自动替换
+#     formhash_re   从签到页 HTML 抠 formhash 的正则
+#     *_keywords    成功/已签/失败的判定词（按站点实际文案填）
+# ============================================================
+
+platform: 示例论坛
+engine: forum
+base_url: "https://bbs.example.com"
+cookie_env: CT_EXAMPLE_COOKIE
+
+# 账号密码登录（可选，与 cookie 配合实现自动续期）：
+# - 推荐用一体化变量 CT_EXAMPLE_AUTH，每行 `cookie||账号||密码`，三段用 || 分隔，
+#   任意段留空即跳过；支持换行或 & 分隔多账号。
+#   · 只有 cookie：   cookie值||          或直接写 cookie值（无 || 视为纯 cookie）
+#   · 只有账号密码： ||账号||密码
+#   · 全有：          cookie值||账号||密码
+# - Cookie 优先；Cookie 失败且有账号密码时，自动登录刷新并写回 AUTH 对应行。
+# - loginfield: email | username | auto（auto 会依次尝试 email / 用户名）
+# - 注意：若论坛开启登录验证码(seccode)，账号密码无法自动通过，需回退有效 cookie。
+# 不需要时整段删除即可。
+login:
+  login_page: "member.php?mod=logging&action=login"
+  loginfield: auto
+  auth_env: CT_EXAMPLE_AUTH   # 一体化变量名（cookie||账号||密码）
+  # extra_fields:          # 可选：固定附加字段；questionid/cookietime 已有默认值
+  #   questionid: "0"
+  #   cookietime: "2592000"
+
+tasks:
+  - name: 每日签到
+    type: sign
+    sign_url: "plugin.php?id=dsu_paulsign:sign"
+    action_url: "plugin.php?id=dsu_paulsign:sign&operation=qiandao&infloat=1"
+    method: post
+    encoding: utf-8
+    payload:
+      formhash: "{formhash}"
+      qdxq: kx
+      qdmode: "1"
+      tosign: "1"
+    formhash_re: 'name="formhash" value="([a-f0-9]+)"'
+    success_keywords:
+      - "签到成功"
+      - "成功签到"
+      - "恭喜"
+    already_keywords:
+      - "已经签到"
+      - "今日已"
+      - "您今天已经签到"
+      - "签到过"
+    fail_keywords:
+      - "登录"
+      - "未登录"
+      - "请先登录"
+      - "游客"
+
+  # 如需第二个任务（如抽奖），取消注释并填好即可，引擎不变：
+  # - name: 每日抽奖
+  #   type: lottery
+  #   sign_url: "plugin.php?id=xxx"
+  #   action_url: "plugin.php?id=xxx&action=draw"
+  #   method: post
+  #   payload:
+  #     formhash: "{formhash}"
+  #   formhash_re: 'name="formhash" value="([a-f0-9]+)"'
+  #   success_keywords: ["抽奖成功"]
+  #   already_keywords: ["今日已抽"]
+  #   fail_keywords: ["未登录"]
