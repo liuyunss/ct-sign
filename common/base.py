@@ -226,6 +226,11 @@ class BaseSigner(ABC):
         base_url = self.task_cfg.get("base_url", "")
         verify_ssl = not self.task_cfg.get("insecure", False)
         encoding = self.task_cfg.get("encoding", "utf-8")
+        # 任务级 headers（如 3G壁纸 的 Referer/X-Requested-With）一并带给登录请求，
+        # 防止部分站点（后端有 WAF 校验 Referer）在登录接口拦截。
+        # 注意：只加到登录 POST，登录页 GET 不带（ThinkPHP 登录页带 X-Requested-With
+        # 会取不到 __token__）。
+        login_headers = self.task_cfg.get("headers") or {}
 
         if login_type == "thinkphp":
             from .login import thinkphp_login
@@ -244,6 +249,7 @@ class BaseSigner(ABC):
                 verify_ssl=verify_ssl,
                 timeout=DEFAULT_TIMEOUT,
                 encoding=encoding,
+                extra_headers=login_headers,
             )
 
         if login_type == "wordpress":
@@ -265,6 +271,7 @@ class BaseSigner(ABC):
                 verify_ssl=verify_ssl,
                 timeout=DEFAULT_TIMEOUT,
                 encoding=encoding,
+                extra_headers=login_headers,
             )
 
         # 默认：Discuz! 表单流
@@ -280,6 +287,7 @@ class BaseSigner(ABC):
             verify_ssl=verify_ssl,
             timeout=DEFAULT_TIMEOUT,
             encoding=encoding,
+            extra_headers=login_headers,
         )
 
     def _mask(self, account: str) -> str:

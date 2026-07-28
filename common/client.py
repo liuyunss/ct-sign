@@ -65,6 +65,11 @@ class HttpClient:
 
         if proxy:
             self.session.proxies.update({"http": proxy, "https": proxy})
+        else:
+            # 关闭系统/环境代理（HTTP_PROXY/HTTPS_PROXY 等）。否则 requests 会自动
+            # 走本机代理（如 127.0.0.1 抓包代理），被拦截并返回非站点响应
+            # （例如 3G壁纸 的 "An error occurred"）。显式置 None 禁用该 scheme 的 env 代理。
+            self.session.proxies.update({"http": None, "https": None})
         self.verify_ssl = verify_ssl
 
     def _url(self, path):

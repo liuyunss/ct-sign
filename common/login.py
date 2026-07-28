@@ -52,6 +52,11 @@ def _new_session(proxy: str, verify_ssl: bool, timeout: int) -> requests.Session
     })
     if proxy:
         s.proxies.update({"http": proxy, "https": proxy})
+    else:
+        # 关闭系统/环境代理（HTTP_PROXY/HTTPS_PROXY 等）。否则本机会把请求
+        # 路由到本地代理（如 127.0.0.1 抓包代理），被拦截并返回非站点响应
+        # （例如 3G壁纸 的 "An error occurred"）。显式置 None 可禁用该 scheme 的 env 代理。
+        s.proxies.update({"http": None, "https": None})
     s.verify = verify_ssl
     return s
 
@@ -93,6 +98,7 @@ def discuz_login(
     verify_ssl: bool = True,
     timeout: int = DEFAULT_TIMEOUT,
     encoding: str = "utf-8",
+    extra_headers: dict | None = None,
 ) -> str:
     """返回形如 "name1=val1; name2=val2" 的 Cookie 头字符串；失败抛 LoginError。"""
     base = (base_url or "").rstrip("/")
@@ -135,7 +141,8 @@ def discuz_login(
         url = (f"{base}/member.php?mod=logging&action=login"
                f"&loginsubmit=yes&loginhash={loginhash}")
         try:
-            r2 = s.post(url, data=data, timeout=timeout, allow_redirects=False)
+            r2 = s.post(url, data=data, timeout=timeout, allow_redirects=False,
+                        headers=extra_headers if extra_headers else None)
         except Exception as e:
             last_err = f"登录请求异常: {e}"
             continue
@@ -186,6 +193,7 @@ def thinkphp_login(
     verify_ssl: bool = True,
     timeout: int = DEFAULT_TIMEOUT,
     encoding: str = "utf-8",
+    extra_headers: dict | None = None,
 ) -> str:
     """ThinkPHP 类站点的账号密码登录助手（如 3G壁纸）。
 
@@ -234,6 +242,8 @@ def thinkphp_login(
         data.update(extra_fields)
     headers = {"X-Requested-With": "XMLHttpRequest",
                "Referer": page_url}
+    if extra_headers:
+        headers.update(extra_headers)
     try:
         r2 = s.post(api_url, data=data, headers=headers, timeout=timeout)
     except Exception as e:
@@ -291,6 +301,7 @@ def wordpress_login(
     verify_ssl: bool = True,
     timeout: int = DEFAULT_TIMEOUT,
     encoding: str = "utf-8",
+    extra_headers: dict | None = None,
 ) -> str:
     """WordPress(admin-ajax.php) 类站点的账号密码登录助手（如 狗破解 gopojie）。
 
@@ -342,6 +353,8 @@ def wordpress_login(
         "Referer": page_url,
         "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
     }
+    if extra_headers:
+        headers.update(extra_headers)
     try:
         r2 = s.post(api_url, data=data, headers=headers, timeout=timeout)
     except Exception as e:

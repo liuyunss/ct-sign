@@ -39,8 +39,22 @@ class ForumSigner(BaseSigner):
                 if m:
                     formhash = m.group(1)
                 else:
-                    return SignResult(self.platform, self.task_name, False,
-                                      "未从签到页提取到 formhash（请检查 sign_url/formhash_re）")
+                    # 区分「Cookie 失效（被重定向到登录页）」与「formhash_re 正则写错」：
+                    # 若页面出现登录相关特征，多半是 Cookie 过期/失效，而非正则问题。
+                    login_markers = [
+                        "loginsubmit", "member.php?mod=logging",
+                        "请先登录", "您还未登录", "立即登录", "登录入口",
+                        "登录后方可", "需要登录", "登录后操作",
+                    ]
+                    looks_login = any(k in page.text for k in login_markers)
+                    if looks_login:
+                        return SignResult(
+                            self.platform, self.task_name, False,
+                            "未提取到 formhash：页面疑似跳转到登录页"
+                            "（Cookie 可能已失效，请重新获取 Cookie 后更新变量）")
+                    return SignResult(
+                        self.platform, self.task_name, False,
+                        "未从签到页提取到 formhash（请检查 sign_url/formhash_re 是否正确）")
             except Exception as e:
                 return SignResult(self.platform, self.task_name, False,
                                   f"访问签到页失败: {e}")
