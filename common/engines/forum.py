@@ -24,30 +24,39 @@ class ForumSigner(BaseSigner):
         formhash_re = cfg.get("formhash_re")
         payload = cfg.get("payload") or {}
         encoding = cfg.get("encoding", "utf-8")
+        extra_fields = cfg.get("extra_fields") or {}
+        extra_headers = cfg.get("extra_headers") or {}
 
         client = HttpClient(
             base_url=base_url, cookie=cookie, proxy=self.proxy,
             encoding=encoding, verify_ssl=not cfg.get("insecure", False),
+            extra_headers=extra_headers,
         )
 
-        # 1) 取签到页，抠 formhash
-        formhash = None
-        if formhash_re and sign_url:
+        login_markers = [
+            "loginsubmit", "member.php?mod=logging",
+            "请先登录", "您还未登录", "立即登录", "登录入口",
+            "登录后方可", "需要登录", "登录后操作",
+        ]
+
+        # 1) 取签到页，抠 formhash 与其他隐藏字段（如 CSRF nonce）
+        subs = {}
+        page_text = ""
+        if sign_url:
             try:
                 page = client.get(sign_url)
-                m = re.search(formhash_re, page.text)
+                page_text = page.text
+            except Exception as e:
+                return SignResult(self.platform, self.task_name, False,
+                                  f"访问签到页失败: {e}")
+            if formhash_re:
+                m = re.search(formhash_re, page_text)
                 if m:
-                    formhash = m.group(1)
+                    subs["formhash"] = m.group(1)
                 else:
                     # 区分「Cookie 失效（被重定向到登录页）」与「formhash_re 正则写错」：
                     # 若页面出现登录相关特征，多半是 Cookie 过期/失效，而非正则问题。
-                    login_markers = [
-                        "loginsubmit", "member.php?mod=logging",
-                        "请先登录", "您还未登录", "立即登录", "登录入口",
-                        "登录后方可", "需要登录", "登录后操作",
-                    ]
-                    looks_login = any(k in page.text for k in login_markers)
-                    if looks_login:
+                    if any(k in page_text for k in login_markers):
                         return SignResult(
                             self.platform, self.task_name, False,
                             "未提取到 formhash：页面疑似跳转到登录页"
@@ -55,21 +64,35 @@ class ForumSigner(BaseSigner):
                     return SignResult(
                         self.platform, self.task_name, False,
                         "未从签到页提取到 formhash（请检查 sign_url/formhash_re 是否正确）")
-            except Exception as e:
-                return SignResult(self.platform, self.task_name, False,
-                                  f"访问签到页失败: {e}")
+            # 提取额外隐藏字段（如 Discuz 签到插件的 sign_nonce）
+            for name, regex in extra_fields.items():
+                fm = re.search(regex, page_text)
+                subs[name] = fm.group(1) if fm else None
 
-        # 2) 组装提交数据，替换 {formhash}
+        # 2) 组装提交数据，替换 {占位符}（formhash / 任意 extra_fields）
         data = {}
         for k, v in payload.items():
-            if isinstance(v, str) and "{formhash}" in v and formhash:
-                v = v.replace("{formhash}", formhash)
+            if isinstance(v, str):
+                for key, val in subs.items():
+                    if val is not None and "{" + key + "}" in v:
+                        v = v.replace("{" + key + "}", val)
             data[k] = v
 
-        # 2.5) action_url 里的 {formhash} 占位也替换（部分插件把 formhash 放在 URL 中，
+        # 2.5) action_url 里的 {占位符} 也替换（部分插件把 formhash 放在 URL 中，
         #       且可能重复出现，例如 Discuz 的 fx_checkin：formhash={fh}&{fh}）
-        if formhash and action_url and "{formhash}" in action_url:
-            action_url = action_url.replace("{formhash}", formhash)
+        if action_url:
+            for key, val in subs.items():
+                if val is not None and "{" + key + "}" in action_url:
+                    action_url = action_url.replace("{" + key + "}", val)
+
+        # 占位符未解析完（如 CSRF nonce 缺失）——通常代表动作已完成或 Cookie 失效。
+        # 已签到时很多插件会移除表单隐藏域，故「字段缺失」优先判为「今日已签」。
+        if any(("{" in str(v) and "}" in str(v)) for v in list(data.values()) + [action_url or ""]):
+            if any(k in page_text for k in login_markers):
+                return SignResult(self.platform, self.task_name, False,
+                                  "页面未包含所需字段（疑似跳登录页，Cookie 可能已失效）")
+            return SignResult(self.platform, self.task_name, True,
+                              "所需字段缺失（通常代表今日已完成/已签到）", already=True)
 
         # 3) 提交
         try:

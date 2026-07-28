@@ -31,10 +31,12 @@ ct-sign/
 │     └─ api.py        # JSON 接口流（预留）
 ├─ platforms/         # 个性化：每个平台一个目录，只放 config.yml
 │  ├─ _template/      # 示例（不直接运行）
-│  └─ fuliba/
+│  ├─ fuliba/
+│  └─ 55188/
 ├─ signs/             # 各平台签到入口脚本（sign_*.py 本体）
 │  ├─ sign_fuliba.py
 │  ├─ sign_pcbeta.py
+│  ├─ sign_55188.py
 │  └─ ...（每个平台一个，约定只一行 main("平台key")）
 ├─ scripts/           # 内部通用脚本（不被 ql repo 白名单匹配，不会建成任务）
 │  ├─ run_all.py      # 一键跑全部（sign_all.py 转发到这里）
@@ -77,6 +79,7 @@ ql repo https://github.com/liuyunss/ct-sign.git "sign_" "" "init.sh" "master"
 | `sign_pinggu.py` | 经管之家 |
 | `sign_3gbizhi.py` | 3G壁纸 |
 | `sign_pcbeta.py` | 远景论坛 |
+| `sign_55188.py` | 55188 理想论坛 |
 | `sign_all.py` | 全部签到（一次性全平台） |
 
 > **之前用旧命令订阅、定时任务里残留 `xxx.py` / `__init__.py` 野任务？**
@@ -110,6 +113,7 @@ ql env add 'CT_PCBETA_AUTH=||yourname@example.com||你的密码'
 # —— 必须手动给 cookie（登录有滑块/极验验证码，无法自动登录）——
 ql env add 'CT_YOUJIAOKU_COOKIE=粘贴的cookie'
 ql env add 'CT_PINGGU_COOKIE=粘贴的cookie'
+ql env add 'CT_55188_COOKIE=粘贴的cookie'
 ```
 
 取 cookie 方法见 `docs/config-guide.md`。
@@ -136,15 +140,16 @@ ql env add 'CT_RANDOM_DELAY_MIN=60'
 
 ## 支持的平台（v1）
 
-| 平台名字 | 网址 | 所需变量 | 状态 |
-|----------|------|----------|------|
-| 福利吧 | https://www.wnflb2023.com | `CT_FULIBA_AUTH`（支持账号密码自动续期；也可只用 `CT_FULIBA_COOKIE`） | ✅ 已实测（Discuz，forum 引擎） |
-| 科学刀 KXDAO | https://www.kxdao.net | `CT_KXDAO_AUTH`（支持账号密码自动续期；也可只用 `CT_KXDAO_COOKIE`） | ✅ 已实测（Discuz，forum 引擎） |
-| 狗破解 GoPoJie | https://www.gopojie.com | `CT_GOPOJIE_AUTH`（支持账号密码自动续期；也可只用 `CT_GOPOJIE_COOKIE`） | ✅ 已实测（WordPress，api 引擎） |
-| 3G壁纸 | https://www.3gbizhi.com | `CT_3GBIZHI_AUTH`（支持账号密码自动续期；也可只用 `CT_3GBIZHI_COOKIE`） | ⏳ 待青龙验证（ThinkPHP，api 引擎） |
-| 远景论坛 PCBETA | https://bbs.pcbeta.com | `CT_PCBETA_AUTH`（支持账号密码自动续期；也可只用 `CT_PCBETA_COOKIE`） | ✅ 已实测（Discuz 任务系统，forum 引擎） |
-| 幼教库 YouJiaoKu | https://www.youjiaoku.com | `CT_YOUJIAOKU_COOKIE`（登录有滑块验证码，不支持账号密码，需手动提供 cookie） | ⚠️ 需手动提供 cookie（WordPress，api 引擎） |
-| 经管之家 PingGu | https://bbs.pinggu.org | `CT_PINGGU_COOKIE`（登录为自建 passport+极验滑块，不支持账号密码，需手动提供 cookie） | ⚠️ 需手动提供 cookie（Discuz+dsu_paulsign，forum 引擎） |
+| 平台名字 | 网址 | 所需变量 |
+|----------|------|----------|
+| 福利吧 | https://www.wnflb2023.com | `CT_FULIBA_AUTH`（支持账号密码自动续期；也可只用 `CT_FULIBA_COOKIE`） |
+| 科学刀 KXDAO | https://www.kxdao.net | `CT_KXDAO_AUTH`（支持账号密码自动续期；也可只用 `CT_KXDAO_COOKIE`） |
+| 狗破解 GoPoJie | https://www.gopojie.com | `CT_GOPOJIE_AUTH`（支持账号密码自动续期；也可只用 `CT_GOPOJIE_COOKIE`） |
+| 3G壁纸 | https://www.3gbizhi.com | `CT_3GBIZHI_AUTH`（支持账号密码自动续期；也可只用 `CT_3GBIZHI_COOKIE`） |
+| 远景论坛 PCBETA | https://bbs.pcbeta.com | `CT_PCBETA_AUTH`（支持账号密码自动续期；也可只用 `CT_PCBETA_COOKIE`） |
+| 幼教库 YouJiaoKu | https://www.youjiaoku.com | `CT_YOUJIAOKU_COOKIE`（登录有滑块验证码，不支持账号密码，需手动提供 cookie） |
+| 经管之家 PingGu | https://bbs.pinggu.org | `CT_PINGGU_COOKIE`（登录为自建 passport+极验滑块，不支持账号密码，需手动提供 cookie） |
+| 55188 理想论坛 | https://www.55188.com | `CT_55188_COOKIE`（登录含 passport 校验，不支持账号密码自动登录，需手动提供 cookie） |
 
 > 变量规则：**支持账号密码自动续期**的平台用 `CT_<平台>_AUTH`（一体化 `cookie||账号||密码`，也可只用 `CT_<平台>_COOKIE`）；**不支持**（有验证码无法自动登录）的平台只用 `CT_<平台>_COOKIE`。
 

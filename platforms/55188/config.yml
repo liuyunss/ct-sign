@@ -1,0 +1,50 @@
+# ============================================================
+# CT-Sign 平台配置 —— 55188 理想股票技术论坛（Discuz!）
+# ============================================================
+# 签到插件：plugin.php?id=sign
+# 提交地址：plugin.php?id=sign&mod=add&formhash={formhash}（POST）
+# 页面编码：GBK
+# 注意：提交需带 sign_nonce（每次刷新页面的 CSRF 值），由引擎自动从签到页抠取。
+#      已签到时页面不再含 sign_nonce 表单，引擎据此判为「今日已签」。
+# ============================================================
+
+platform: 55188理想论坛
+engine: forum
+base_url: "https://www.55188.com"
+cookie_env: CT_55188_COOKIE
+
+tasks:
+  - name: 每日签到
+    type: sign
+    sign_url: "plugin.php?id=sign"
+    action_url: "plugin.php?id=sign&mod=add&formhash={formhash}"
+    method: post
+    encoding: gbk
+    payload:
+      sign_nonce: "{sign_nonce}"
+      formhash: "{formhash}"
+    extra_fields:
+      # 从签到页抠取 CSRF nonce（隐藏域 name="sign_nonce"）
+      sign_nonce: 'name="sign_nonce" value="([^"]+)"'
+    extra_headers:
+      # 该接口为 AJAX，需此头才会返回 JSON 结果
+      X-Requested-With: "XMLHttpRequest"
+    formhash_re: 'name="formhash" value="([a-f0-9]+)"'
+    success_keywords:             # 命中任一 = 签到成功
+      - '"status":"success"'
+      - 签到成功
+      - 签到完成
+    already_keywords:             # 命中任一 = 今日已签（视为成功）
+      - '"status":"already"'
+      - 已签到
+      - 今日已
+      - 已经签到
+      - 您今天
+      - 签到过
+    fail_keywords:                # 命中任一 = 失败（未登录/被拦截）
+      - Access Denied
+      - nonce_expired
+      - 请先登录
+      - 未登录
+      - 游客
+      - 非法
