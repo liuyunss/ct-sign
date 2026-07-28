@@ -50,12 +50,14 @@ ct-sign/
 ### 1. 订阅仓库（自动装依赖 + 建好所有定时任务）
 
 ```bash
-ql repo https://github.com/liuyunss/ct-sign.git "" "" "init.sh" "master"
+ql repo https://github.com/liuyunss/ct-sign.git "" "common/.*|init\.py" "init.sh" "master"
 ```
 
-参数顺序：仓库URL | 白名单(留空) | 黑名单(留空) | 初始化命令 `init.sh` | 分支 `master`。
-执行后自动 `pip install -r requirements.txt`，并通过青龙 API 建好「每个平台 + 全部签到」的定时任务。
-（若 `init.sh` 未自动执行，在面板「订阅管理」把该订阅的初始化命令设为 `init.sh` 再运行一次。）
+参数顺序：仓库URL | 白名单(留空) | 黑名单 `common/.*|init\.py` | 初始化命令 `init.sh` | 分支 `master`。
+黑名单让 `ql repo` 不要把项目内部库文件（`common/`）和初始化脚本 `init.py` 误建成定时任务。
+
+执行后自动 `pip install -r requirements.txt`，并通过青龙 API 建好**每个平台 + 全部签到**的定时任务，任务名形如 `CT-Sign 福利吧 签到`、`CT-Sign 全部签到`（中文平台名，一眼能分清）。`init.py` 还会顺手删除订阅时误建的「文件名式」野任务（如 `run_all.py`、`init.py`）。
+（若 `init.sh` 未自动执行，在面板「订阅管理」把该订阅的初始化命令设为 `init.sh` 再运行一次；任务建好后想重排，直接重跑 `python3 init.py` 即可，已存在的不会重复创建。）
 
 ### 2. 添加环境变量（值换成你自己的；多账号用 `&` 或换行分隔）
 

@@ -93,7 +93,7 @@ def update_env_value(name: str, value: str):
         return False, str(e)
 
 
-def create_cron(name, command, schedule="1 0 * * *"):
+def create_cron(name, command, schedule="1 0 * * *", remark=""):
     """在青龙里创建一个定时任务。返回 (成功, 消息)。"""
     base = os.environ.get("QL_URL", "http://127.0.0.1:5700").rstrip("/")
     token = _get_token()
@@ -103,6 +103,7 @@ def create_cron(name, command, schedule="1 0 * * *"):
         "name": name,
         "command": command,
         "schedule": schedule,
+        "remark": remark,
         "task": True,
     }]
     url = f"{base}/openapi/crons"
@@ -118,3 +119,52 @@ def create_cron(name, command, schedule="1 0 * * *"):
             return True, r.read().decode("utf-8", "ignore")
     except Exception as e:
         return False, str(e)
+
+
+def list_crons():
+    """列出青龙所有定时任务。返回 (list|None, error_msg)。"""
+    base = os.environ.get("QL_URL", "http://127.0.0.1:5700").rstrip("/")
+    token = _get_token()
+    if not token:
+        return None, "未检测到青龙 API 令牌"
+    url = f"{base}/openapi/crons"
+    req = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}"})
+    try:
+        with urllib.request.urlopen(req, timeout=10) as r:
+            data = json.loads(r.read())
+        return (data.get("data") or []), None
+    except Exception as e:
+        return None, str(e)
+
+
+def delete_cron(cron_id):
+    """删除一个定时任务。返回 (ok, msg)。"""
+    base = os.environ.get("QL_URL", "http://127.0.0.1:5700").rstrip("/")
+    token = _get_token()
+    if not token:
+        return False, "未检测到青龙 API 令牌"
+    url = f"{base}/openapi/crons"
+    body = [cron_id]
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(body).encode("utf-8"),
+        headers={"Authorization": f"Bearer {token}",
+                 "Content-Type": "application/json"},
+        method="DELETE",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as r:
+            resp = json.loads(r.read())
+        if resp.get("code") == 200:
+            return True, "ok"
+        return False, str(resp)
+    except Exception as e:
+        return False, str(e)
+
+
+def cron_exists(name):
+    """是否已存在同名定时任务。"""
+    crons, err = list_crons()
+    if crons is None:
+        return False
+    return any((c.get("name") == name) for c in crons)
