@@ -15,6 +15,16 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
+# 兜底：青龙 init.sh 可能未执行，缺第三方依赖时自动按 requirements.txt 安装
+try:
+    import yaml, requests  # noqa: F401
+except ImportError:
+    import subprocess
+    subprocess.check_call(
+        [sys.executable, "-m", "pip", "install", "-r",
+         os.path.join(ROOT, "requirements.txt"), "-q"]
+    )
+
 from common.loader import discover, load_platform
 from common.config import load_global_config
 from common.notify import notify

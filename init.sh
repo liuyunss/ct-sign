@@ -15,7 +15,14 @@
 #!/usr/bin/env bash
 set -e
 
-cd "$(dirname "$0")"
+# 定位仓库根目录：优先脚本所在目录；找不到 requirements.txt 则去 /ql/data/repo/<同名目录>
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT_DIR="$SCRIPT_DIR"
+if [ ! -f "$SCRIPT_DIR/requirements.txt" ]; then
+  _REPO="/ql/data/repo/$(basename "$SCRIPT_DIR")"
+  [ -f "$_REPO/requirements.txt" ] && ROOT_DIR="$_REPO"
+fi
+cd "$ROOT_DIR"
 
 echo "[CT-Sign] 安装 Python 依赖..."
 python3 -m pip install -r requirements.txt -q
