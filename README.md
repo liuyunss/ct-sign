@@ -50,24 +50,29 @@ ct-sign/
 ### 1. 订阅仓库（自动装依赖 + 建好所有定时任务）
 
 ```bash
-ql repo https://github.com/liuyunss/ct-sign.git "" "common|init\.py|run_all\.py|run_platform\.py" "init.sh" "master"
+ql repo https://github.com/liuyunss/ct-sign.git "sign_" "" "init.sh" "master"
 ```
 
-参数顺序：仓库URL | 白名单(留空) | 黑名单 `common|init\.py|run_all\.py|run_platform\.py` | 初始化命令 `init.sh` | 分支 `master`。
-黑名单让 `ql repo` 不要把项目内部库文件（`common/`）、入口脚本（`run_all.py` / `run_platform.py`）和初始化脚本（`init.py`）误建成定时任务（同时兼容「按路径」和「按文件名」两种匹配方式）。
+参数顺序：仓库URL | 白名单 `sign_` | 黑名单(留空) | 初始化命令 `init.sh` | 分支 `master`。
 
-执行后自动 `pip install -r requirements.txt`，并通过青龙 API 建好**每个平台 + 全部签到**的定时任务，任务名形如 `CT-Sign 福利吧 签到`、`CT-Sign 全部签到`（中文平台名，一眼能分清）。`init.py` 还会顺手删除订阅时误建的「文件名式」野任务（如 `common/*.py`、`run_all.py`、`run_platform.py`、`init.py`）。
+**白名单 `sign_` 是关键**：它让 `ql repo` 只把仓库里 `sign_*.py` 这些「每个平台一个」的入口脚本建成定时任务——也就是一行一个任务、青龙原生日志，和常见脚本库（如 smzdm_script）一样。内部库文件 `common/`、通用入口 `run_platform.py` / `run_all.py`、初始化 `init.py` 都不匹配白名单，自然不会被建成任务，因此**不会有野任务，也不依赖青龙 API 令牌**（彻底免去令牌获取失败的坑）。
 
-> **已订阅且定时任务里仍看到 `xxx.py` / `__init__.py` 这类文件名式任务？**
-> 说明当初订阅时黑名单没生效，或 `init.sh` 没被自动执行。两步彻底解决（否则每天 04:54 repo 拉取会重建野任务）：
-> 1. 在青龙「订阅管理」把本仓库订阅命令的**黑名单**改为上面的完整版，保存后点「重新拉取」；
-> 2. 在青龙「终端」执行（仓库目录名以实际为准，如 `liuyunss_ct-sign_master`）：
->    ```bash
->    cd /ql/data/repo/liuyunss_ct-sign_master && python3 init.py
->    ```
->    它会自动删除所有文件名式野任务，并建好 `CT-Sign 福利吧/科学刀/… 签到` 等友好任务（每天 00:01）。若提示缺依赖先 `pip install -r requirements.txt`。
+执行后自动 `pip install -r requirements.txt`，并直接得到下列定时任务（每个平台一行，青龙原生日志，默认每天 00:01）：
 
-（若 `init.sh` 未自动执行，在面板「订阅管理」把该订阅的初始化命令设为 `init.sh` 再运行一次；任务建好后想重排，直接重跑 `python3 init.py` 即可，已存在的不会重复创建。）
+| 任务（文件名即任务名） | 对应平台 |
+|---|---|
+| `sign_fuliba.py` | 福利吧 |
+| `sign_gopojie.py` | 狗破解 |
+| `sign_kxdao.py` | 科学刀 |
+| `sign_youjiaoku.py` | 幼教库 |
+| `sign_pinggu.py` | 经管之家 |
+| `sign_3gbizhi.py` | 3G壁纸 |
+| `sign_all.py` | 全部签到（一次性全平台） |
+
+> **之前用旧命令订阅、定时任务里残留 `xxx.py` / `__init__.py` 野任务？**
+> 在青龙「订阅管理」把本仓库订阅命令改为上面的**白名单 `sign_`** 版本，保存后点「重新拉取」即可：青龙会删除该订阅之前建的任务、再只按白名单建出 `sign_*` 任务，野任务随之消失。
+>
+> （`init.py` 仍保留作为「不用 ql repo 时的手动建任务工具」，正常用 ql repo 订阅不需要它。）
 
 ### 2. 添加环境变量（值换成你自己的；多账号用 `&` 或换行分隔）
 

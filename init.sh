@@ -15,8 +15,7 @@ set -e
 
 cd "$(dirname "$0")"
 
-echo "[CT-Sign] 安装依赖..."
+echo "[CT-Sign] 安装 Python 依赖..."
 python3 -m pip install -r requirements.txt -q
 
-echo "[CT-Sign] 初始化定时任务..."
-python3 init.py
+echo "[CT-Sign] 依赖就绪。定时任务由 ql repo 白名单 sign_ 自动建出（每个平台一行任务）。"

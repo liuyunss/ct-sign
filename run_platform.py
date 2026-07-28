@@ -22,11 +22,12 @@ from common.notify import notify
 from common.log import logger
 
 
-def main():
-    if len(sys.argv) < 2:
-        logger.error("用法: python run_platform.py <平台名>")
-        sys.exit(2)
-    name = sys.argv[1]
+def main(name=None):
+    if name is None:
+        if len(sys.argv) < 2:
+            logger.error("用法: python run_platform.py <平台名>")
+            sys.exit(2)
+        name = sys.argv[1]
     signers = load_platform(name)
     if not signers:
         logger.error("平台 %s 无可执行任务（检查 platforms/%s/config.yml）", name, name)
