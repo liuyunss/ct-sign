@@ -45,14 +45,55 @@ ct-sign/
 
 ## 快速开始（青龙里）
 
-1. **拉代码**：面板「脚本管理 → 添加仓库」，仓库地址填本仓库 URL，初始化命令填 `init.sh`；
-   或命令行 `ql repo <仓库URL> "init.sh"`。订阅后任务自动建好。
-2. **装依赖**：`init.sh` 已自动 `pip install -r requirements.txt`。
-3. **配变量**：青龙「环境变量」按下面二选一（详见 `docs/config-guide.md` 的「0、照着填」章节）：
-   - 只有 Cookie：`CT_FUELBA_COOKIE=复制的cookie字符串`
-   - 推荐（Cookie+账号密码自动续期）：`CT_FUELBA_AUTH=你的cookie||yourname@example.com||你的密码`
-   - 只有账号密码也行：`CT_FUELBA_AUTH=||yourname@example.com||你的密码`
-4. **看结果**：定时任务每天 00:01 跑，结果由青龙自带通知推给你。
+> 以下命令在青龙容器终端执行（面板左侧「终端」，或 `docker exec -it ql bash`）。
+
+### 1. 订阅仓库（自动装依赖 + 建好所有定时任务）
+
+```bash
+ql repo https://github.com/liuyunss/ct-sign.git "" "" "init.sh" "master"
+```
+
+参数顺序：仓库URL | 白名单(留空) | 黑名单(留空) | 初始化命令 `init.sh` | 分支 `master`。
+执行后自动 `pip install -r requirements.txt`，并通过青龙 API 建好「每个平台 + 全部签到」的定时任务。
+（若 `init.sh` 未自动执行，在面板「订阅管理」把该订阅的初始化命令设为 `init.sh` 再运行一次。）
+
+### 2. 添加环境变量（值换成你自己的；多账号用 `&` 或换行分隔）
+
+```bash
+# 福利吧（已实测，可只给账号密码自动续期）
+ql env add 'CT_FUELBA_COOKIE=粘贴的cookie'
+ql env add 'CT_FUELBA_AUTH=||yourname@example.com||你的密码'
+
+# 狗破解 / 宽带山（均可自动登录续期）
+ql env add 'CT_GOPOJIE_AUTH=||yourname@example.com||你的密码'
+ql env add 'CT_KXDAO_AUTH=||yourname@example.com||你的密码'
+
+# 幼教库 / 经管之家（登录有滑块/极验验证码，必须手动给 cookie）
+ql env add 'CT_YOUJIAOKU_COOKIE=粘贴的cookie'
+ql env add 'CT_PINGGU_COOKIE=粘贴的cookie'
+
+# 3G壁纸（待青龙验证）
+ql env add 'CT_3GBIZHI_AUTH=||账号||密码'
+```
+
+取 cookie 方法见 `docs/config-guide.md`。
+
+### 3. 立即跑一次验证（也可等每天 00:01 自动触发）
+
+```bash
+task run_all.py                 # 全部平台一起签
+task run_platform.py youjiaoku  # 只签某个平台
+```
+
+### 4.（可选）随机延迟错峰
+
+默认固定 00:01 触发。想让各账号在触发后随机错峰，加两个环境变量：
+
+```bash
+ql env add 'CT_RANDOM_DELAY=300'
+ql env add 'CT_RANDOM_DELAY_MIN=60'
+```
+
 
 ## 支持的平台（v1）
 
