@@ -42,7 +42,19 @@ def load_platform(name):
     base_url = cfg.get("base_url", "")
     cookie_env = cfg.get("cookie_env", "")
     account_sep = cfg.get("account_separator", "&")
-    proxy = get_global("proxy", "") or os.environ.get("CT_PROXY", "")
+    # 代理优先级（从高到低）：
+    #   1) 平台 config.yml 的 proxy_env 指向的环境变量（推荐，密钥不进仓库）
+    #   2) 平台 config.yml 直接写的 proxy（仅本地调试用）
+    #   3) 全局环境变量 CT_PROXY
+    #   4) 全局 config/config.yml 的 proxy
+    # 平台显式写 proxy: ""（或 proxy_env 指向的变量为空）可关闭该平台代理，
+    # 即便全局配了 CT_PROXY 也生效。
+    if "proxy_env" in cfg:
+        proxy = os.environ.get(cfg.get("proxy_env")) or ""
+    elif "proxy" in cfg:
+        proxy = cfg.get("proxy") or ""
+    else:
+        proxy = get_global("proxy", "") or os.environ.get("CT_PROXY", "")
     try:
         random_delay = int(get_global("random_delay", 0) or os.environ.get("CT_RANDOM_DELAY", 0) or 0)
     except Exception:

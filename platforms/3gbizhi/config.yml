@@ -17,6 +17,10 @@ platform: 3G壁纸
 engine: api
 base_url: "https://www.3gbizhi.com"   # 站点域名（不含末尾 /）
 cookie_env: CT_3GBIZHI_COOKIE
+# 仅本平台走代理（青龙容器 IP 被 EdgeOne WAF 封禁时换 IP 用）。
+# proxy_env 指向一个青龙环境变量名（如 CT_PROXY_3GBIZHI=http://ip:port），
+# 密钥留在青龙环境变量，不进仓库。不需要代理的平台不写这一行即可。
+proxy_env: CT_PROXY_3GBIZHI
 
 # ThinkPHP 账号密码登录（可选，与 cookie 配合实现自动续期）：
 # - 推荐用一体化变量 CT_3GBIZHI_AUTH（每行 cookie||账号||密码，缺哪段留空即可）。
@@ -34,7 +38,8 @@ login:
 # 注意：3g壁纸 前端有腾讯 EdgeOne CDN/WAF。
 #   拦截特征：IP 被封时返回 {"code":404,"msg":"An error occurred","time":<数字>}（time 为数字、msg 英文，
 #             与站点正常响应 {"code":401,"msg":"请登录后操作","time":"<字符串>"} 不同）。
-#   若持续 404：青龙容器 IP 可能被 WAF 临时封禁，可配 CT_PROXY 代理换 IP，或等待封禁过期。
+#   若持续 404：青龙容器 IP 可能被 WAF 临时封禁，配本文件顶部的 proxy_env（如 CT_PROXY_3GBIZHI）代理换 IP，
+#   或等待封禁过期（注意：配全局 CT_PROXY 会让所有平台都走代理，本平台已用 proxy_env 单独控制）。
 
 tasks:
   - name: 每日签到
