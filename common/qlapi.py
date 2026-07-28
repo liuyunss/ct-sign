@@ -8,9 +8,20 @@
 from __future__ import annotations
 
 import os
+import sys
 import json
 import urllib.request
 import urllib.parse
+import urllib.error
+
+
+def _http_err_msg(e):
+    """把 urllib HTTPError 转成带响应体的可读信息，便于排查（如权限 400）。"""
+    try:
+        body = e.read().decode("utf-8", "ignore")
+    except Exception:
+        body = ""
+    return f"HTTP {getattr(e, 'code', '?')}: {body}"
 
 
 def _get_token():
@@ -29,9 +40,18 @@ def _get_token():
             req = urllib.request.Request(url)
             with urllib.request.urlopen(req, timeout=10) as r:
                 data = json.loads(r.read())
-            return (data.get("data") or {}).get("token")
-        except Exception:
-            return None
+            token = (data.get("data") or {}).get("token")
+            if token:
+                return token
+            # 拿到了响应但没有 token 字段（异常结构），提示出来而非静默失败
+            print(f"[CT-Sign] qlapi: /open/auth/token 返回但无 token 字段: {data}",
+                  file=sys.stderr)
+        except urllib.error.HTTPError as e:
+            print(f"[CT-Sign] qlapi: 获取 token 失败 {_http_err_msg(e)}",
+                  file=sys.stderr)
+        except Exception as e:
+            print(f"[CT-Sign] qlapi: 获取 token 异常: {e}", file=sys.stderr)
+        return None
     # 3) 读取青龙容器内 auth.json（最稳，容器里一定存在）
     #    兼容多种结构：token 为字符串；tokens 为 {client_id: token} 映射时取首个值
     for path in ("/ql/config/auth.json", "/ql/data/config/auth.json"):
@@ -69,6 +89,8 @@ def get_envs(search: str = ""):
         with urllib.request.urlopen(req, timeout=10) as r:
             data = json.loads(r.read())
         return (data.get("data") or []), None
+    except urllib.error.HTTPError as e:
+        return None, _http_err_msg(e)
     except Exception as e:
         return None, str(e)
 
@@ -110,6 +132,8 @@ def update_env_value(name: str, value: str):
         if resp.get("code") == 200:
             return True, "ok"
         return False, str(resp)
+    except urllib.error.HTTPError as e:
+        return False, _http_err_msg(e)
     except Exception as e:
         return False, str(e)
 
@@ -154,6 +178,8 @@ def list_crons():
         with urllib.request.urlopen(req, timeout=10) as r:
             data = json.loads(r.read())
         return (data.get("data") or []), None
+    except urllib.error.HTTPError as e:
+        return None, _http_err_msg(e)
     except Exception as e:
         return None, str(e)
 
@@ -179,6 +205,8 @@ def delete_cron(cron_id):
         if resp.get("code") == 200:
             return True, "ok"
         return False, str(resp)
+    except urllib.error.HTTPError as e:
+        return False, _http_err_msg(e)
     except Exception as e:
         return False, str(e)
 
