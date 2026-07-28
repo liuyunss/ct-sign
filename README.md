@@ -52,7 +52,7 @@ ct-sign/
    - 只有 Cookie：`CT_FUELBA_COOKIE=复制的cookie字符串`
    - 推荐（Cookie+账号密码自动续期）：`CT_FUELBA_AUTH=你的cookie||yourname@example.com||你的密码`
    - 只有账号密码也行：`CT_FUELBA_AUTH=||yourname@example.com||你的密码`
-4. **看结果**：定时任务每天 08:00 跑，结果由青龙自带通知推给你。
+4. **看结果**：定时任务每天 00:01 跑，结果由青龙自带通知推给你。
 
 ## 支持的平台（v1）
 

@@ -3,7 +3,7 @@
 - 容器内：自动获取青龙内部令牌，免 key 建任务。
 - 容器外：无令牌则跳过建任务，仅做配置校验 + 提示。
 
-任务计划（cron）可用环境变量 CT_CRON 覆盖，默认每天 08:00（0 8 * * *）。
+任务计划（cron）可用环境变量 CT_CRON 覆盖，默认每天 00:01（1 0 * * *）。
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ from common.config import load_global_config
 from common.loader import discover, load_platform
 from common.qlapi import create_cron
 
-SCHEDULE = os.environ.get("CT_CRON", "0 8 * * *")
+SCHEDULE = os.environ.get("CT_CRON", "1 0 * * *")
 
 
 def main():

@@ -52,7 +52,7 @@ python run_platform.py example
 
 ## 5. 建定时任务 / 交给 init
 
-- 手动：青龙「定时任务」新建，命令 `task run_platform.py example`，计划每天 08:00。
+- 手动：青龙「定时任务」新建，命令 `task run_platform.py example`，计划每天 00:01。
 - 自动：若用 `ql repo` 订阅，已包含的 `init.sh` 会自动把这个平台任务建好，无需手动。
 
 > 不同论坛的签到插件与返回文案不同，第一次务必手动跑一遍核对。

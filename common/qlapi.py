@@ -93,7 +93,7 @@ def update_env_value(name: str, value: str):
         return False, str(e)
 
 
-def create_cron(name, command, schedule="0 8 * * *"):
+def create_cron(name, command, schedule="1 0 * * *"):
     """在青龙里创建一个定时任务。返回 (成功, 消息)。"""
     base = os.environ.get("QL_URL", "http://127.0.0.1:5700").rstrip("/")
     token = _get_token()
