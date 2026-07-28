@@ -29,7 +29,7 @@ PREFIX = "CT-Sign"
 DISPLAY = {
     "fuelba": "福利吧",
     "gopojie": "狗破解",
-    "kxdao": "宽带山",
+    "kxdao": "科学刀",
     "youjiaoku": "幼教库",
     "pinggu": "经管之家",
     "3gbizhi": "3G壁纸",

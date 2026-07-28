@@ -1,4 +1,4 @@
-# 宽带山 KXDAO 每日签到（已实测核对，2026-07-28）
+# 科学刀 KXDAO 每日签到（已实测核对，2026-07-28）
 #
 # 站点：https://www.kxdao.net/   Discuz! 论坛
 # 签到插件：aigeo_sign（aigeo 每日签到）
@@ -12,7 +12,7 @@
 #                       任意段留空即跳过；支持换行或 & 分隔多账号。
 #                       Cookie 优先；Cookie 失败且有账号密码时自动登录刷新并写回本行。
 
-platform: 宽带山KXDAO
+platform: 科学刀KXDAO
 engine: forum
 base_url: "https://www.kxdao.net"
 cookie_env: CT_KXDAO_COOKIE

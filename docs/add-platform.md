@@ -62,7 +62,7 @@ python run_platform.py example
 
 框架内置三种登录后端，由 `login:` 段的 `login_type` 选择，**无需改代码**：
 
-- `login_type: discuz`（默认）：Discuz! 表单流，自动取 formhash 登录（福利吧、宽带山等）。
+- `login_type: discuz`（默认）：Discuz! 表单流，自动取 formhash 登录（福利吧、科学刀等）。
 - `login_type: thinkphp`：ThinkPHP 类站点（如 3G壁纸）。自动 GET 登录页抠 `__token__` →
   POST 登录接口 → 返回登录态 Cookie。需配合填写 `login_page` / `login_api` /
   `token_field` / `account_field` / `password_field` / `success_code`，完整示例见

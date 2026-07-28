@@ -66,7 +66,7 @@ ql repo https://github.com/liuyunss/ct-sign.git "" "common/.*|init\.py" "init.sh
 ql env add 'CT_FUELBA_COOKIE=粘贴的cookie'
 ql env add 'CT_FUELBA_AUTH=||yourname@example.com||你的密码'
 
-# 狗破解 / 宽带山（均可自动登录续期）
+# 狗破解 / 科学刀（均可自动登录续期）
 ql env add 'CT_GOPOJIE_AUTH=||yourname@example.com||你的密码'
 ql env add 'CT_KXDAO_AUTH=||yourname@example.com||你的密码'
 
@@ -99,14 +99,16 @@ ql env add 'CT_RANDOM_DELAY_MIN=60'
 
 ## 支持的平台（v1）
 
-| 平台 | 目录 | 所需变量 | 状态 |
-|------|------|----------|------|
-| 福利吧 | platforms/fuelba | `CT_FUELBA_COOKIE` 或 `CT_FUELBA_AUTH` | ✅ 已实测（Discuz，forum 引擎） |
-| 宽带山 KXDAO | platforms/kxdao | `CT_KXDAO_COOKIE` 或 `CT_KXDAO_AUTH` | ✅ 已实测（Discuz，forum 引擎，支持账号密码自动续期） |
-| 狗破解 GoPoJie | platforms/gopojie | `CT_GOPOJIE_COOKIE` 或 `CT_GOPOJIE_AUTH` | ✅ 已实测（WordPress，api 引擎，支持账号密码自动续期） |
-| 3G壁纸 | platforms/3gbizhi | `CT_3GBIZHI_COOKIE` 或 `CT_3GBIZHI_AUTH` | ⏳ 待青龙验证（ThinkPHP，api 引擎） |
-| 幼教库 YouJiaoKu | platforms/youjiaoku | `CT_YOUJIAOKU_COOKIE`（推荐） | ⚠️ 登录有滑块验证码，需手动提供 cookie（WordPress，api 引擎） |
-| 经管之家 PingGu | platforms/pinggu | `CT_PINGGU_COOKIE`（推荐） | ⚠️ 登录为自建 passport+极验滑块，需手动提供 cookie（Discuz+dsu_paulsign，forum 引擎） |
+| 平台名字 | 网址 | 所需变量 | 状态 |
+|----------|------|----------|------|
+| 福利吧 | https://www.wnflb2023.com | `CT_FUELBA_AUTH`（支持账号密码自动续期；也可只用 `CT_FUELBA_COOKIE`） | ✅ 已实测（Discuz，forum 引擎） |
+| 科学刀 KXDAO | https://www.kxdao.net | `CT_KXDAO_AUTH`（支持账号密码自动续期；也可只用 `CT_KXDAO_COOKIE`） | ✅ 已实测（Discuz，forum 引擎） |
+| 狗破解 GoPoJie | https://www.gopojie.com | `CT_GOPOJIE_AUTH`（支持账号密码自动续期；也可只用 `CT_GOPOJIE_COOKIE`） | ✅ 已实测（WordPress，api 引擎） |
+| 3G壁纸 | https://www.3gbizhi.com | `CT_3GBIZHI_AUTH`（支持账号密码自动续期；也可只用 `CT_3GBIZHI_COOKIE`） | ⏳ 待青龙验证（ThinkPHP，api 引擎） |
+| 幼教库 YouJiaoKu | https://www.youjiaoku.com | `CT_YOUJIAOKU_COOKIE`（登录有滑块验证码，不支持账号密码，需手动提供 cookie） | ⚠️ 需手动提供 cookie（WordPress，api 引擎） |
+| 经管之家 PingGu | https://bbs.pinggu.org | `CT_PINGGU_COOKIE`（登录为自建 passport+极验滑块，不支持账号密码，需手动提供 cookie） | ⚠️ 需手动提供 cookie（Discuz+dsu_paulsign，forum 引擎） |
+
+> 变量规则：**支持账号密码自动续期**的平台用 `CT_<平台>_AUTH`（一体化 `cookie||账号||密码`，也可只用 `CT_<平台>_COOKIE`）；**不支持**（有验证码无法自动登录）的平台只用 `CT_<平台>_COOKIE`。
 
 平台涵盖 Discuz / WordPress / ThinkPHP 三类，分别走 `forum` / `api` 引擎；加新平台见 `docs/add-platform.md`。
 
