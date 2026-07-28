@@ -25,7 +25,7 @@ def _get_token():
     if cid and csec:
         base = os.environ.get("QL_URL", "http://127.0.0.1:5700").rstrip("/")
         try:
-            url = f"{base}/openapi/auth/token?client_id={urllib.parse.quote(cid)}&client_secret={urllib.parse.quote(csec)}"
+            url = f"{base}/open/auth/token?client_id={urllib.parse.quote(cid)}&client_secret={urllib.parse.quote(csec)}"
             req = urllib.request.Request(url)
             with urllib.request.urlopen(req, timeout=10) as r:
                 data = json.loads(r.read())
@@ -33,14 +33,25 @@ def _get_token():
         except Exception:
             return None
     # 3) 读取青龙容器内 auth.json（最稳，容器里一定存在）
+    #    兼容多种结构：token 为字符串；tokens 为 {client_id: token} 映射时取首个值
     for path in ("/ql/config/auth.json", "/ql/data/config/auth.json"):
-        if os.path.exists(path):
-            try:
-                with open(path, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                return data.get("token") or data.get("tokens")
-            except Exception:
-                pass
+        if not os.path.exists(path):
+            continue
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            tok = data.get("token")
+            if isinstance(tok, str) and tok:
+                return tok
+            tokens = data.get("tokens")
+            if isinstance(tokens, dict) and tokens:
+                first = next(iter(tokens.values()))
+                if isinstance(first, str) and first:
+                    return first
+            elif isinstance(tokens, str) and tokens:
+                return tokens
+        except Exception:
+            pass
     return None
 
 
@@ -50,7 +61,7 @@ def get_envs(search: str = ""):
     token = _get_token()
     if not token:
         return None, "未检测到青龙 API 令牌（容器内自动获取失败且未配置 QL_*）"
-    url = f"{base}/openapi/envs"
+    url = f"{base}/open/envs"
     if search:
         url += f"?search={urllib.parse.quote(search)}"
     req = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}"})
@@ -80,11 +91,11 @@ def update_env_value(name: str, value: str):
         env_id = match.get("id")
         body = [{"id": env_id, "name": name, "value": value,
                  "remarks": match.get("remarks", "")}]
-        url = f"{base}/openapi/envs"
+        url = f"{base}/open/envs"
         method = "PUT"
     else:
         body = [{"name": name, "value": value}]
-        url = f"{base}/openapi/envs"
+        url = f"{base}/open/envs"
         method = "POST"
     req = urllib.request.Request(
         url,
@@ -116,7 +127,7 @@ def create_cron(name, command, schedule="1 0 * * *", remark=""):
         "remark": remark,
         "task": True,
     }]
-    url = f"{base}/openapi/crons"
+    url = f"{base}/open/crons"
     req = urllib.request.Request(
         url,
         data=json.dumps(body).encode("utf-8"),
@@ -137,7 +148,7 @@ def list_crons():
     token = _get_token()
     if not token:
         return None, "未检测到青龙 API 令牌"
-    url = f"{base}/openapi/crons"
+    url = f"{base}/open/crons"
     req = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}"})
     try:
         with urllib.request.urlopen(req, timeout=10) as r:
@@ -153,7 +164,7 @@ def delete_cron(cron_id):
     token = _get_token()
     if not token:
         return False, "未检测到青龙 API 令牌"
-    url = f"{base}/openapi/crons"
+    url = f"{base}/open/crons"
     body = [cron_id]
     req = urllib.request.Request(
         url,
