@@ -4,7 +4,13 @@
 # 用法：复制为 config/config.yml，按需修改。
 # 所有项均可不填；也可直接用同名环境变量覆盖（如 CT_PROXY）。
 
-proxy: ""               # 全局代理，如 http://127.0.0.1:7890；留空不走代理
+# 代理设计（避免为每个平台各建一个变量）：
+#   · 代理地址用【环境变量 CT_PROXY】统一配置，如 http://127.0.0.1:7890 或 socks5://user:pass@ip:port
+#   · 哪些平台走代理用「二选一」声明（未点名的不走代理）：
+#       方式A：在对应平台 config.yml 写 proxy: true（推荐）
+#       方式B：下面写 proxy_platforms 名单（用平台目录名，如 3gbizhi）
+#   · 想让某个平台强制关闭代理，可在其 config.yml 写 proxy: false
+proxy_platforms: []      # 走代理的平台目录名名单，如 ["3gbizhi", "fuliba"]
 random_delay: 0         # 随机延迟秒数上限：每个账号签到前随机休眠 [random_delay_min, random_delay]，模拟用户随机触发（0=不延迟）
 random_delay_min: 0     # 随机延迟下限（秒）；random_delay_min > random_delay 时自动取等于上限
 debug: false            # 调试模式（预留）

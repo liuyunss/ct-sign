@@ -42,19 +42,23 @@ def load_platform(name):
     base_url = cfg.get("base_url", "")
     cookie_env = cfg.get("cookie_env", "")
     account_sep = cfg.get("account_separator", "&")
-    # 代理优先级（从高到低）：
-    #   1) 平台 config.yml 的 proxy_env 指向的环境变量（推荐，密钥不进仓库）
-    #   2) 平台 config.yml 直接写的 proxy（仅本地调试用）
-    #   3) 全局环境变量 CT_PROXY
-    #   4) 全局 config/config.yml 的 proxy
-    # 平台显式写 proxy: ""（或 proxy_env 指向的变量为空）可关闭该平台代理，
-    # 即便全局配了 CT_PROXY 也生效。
+    # 代理设计（避免为每个平台各建一个变量）：
+    #   · 一个全局变量 CT_PROXY 放代理地址（http://ip:port 或 socks5://...）
+    #   · 哪些平台走代理，用「二选一」的方式声明，未点名的平台完全不走代理：
+    #       方式A：平台 config.yml 写 proxy: true（推荐，开关就在平台配置里）
+    #       方式B：全局 config/config.yml 写 proxy_platforms: [3gbizhi, ...] 名单
+    #   · 平台 config.yml 写 proxy: false 可显式关闭（即便在名单里也生效）
+    #   · proxy_env: <ENV名> 仍可用，指向一个环境变量读取代理（密钥不进仓库）
+    ct_proxy = os.environ.get("CT_PROXY", "")
+    proxy_platforms = get_global("proxy_platforms", []) or []
     if "proxy_env" in cfg:
         proxy = os.environ.get(cfg.get("proxy_env")) or ""
     elif "proxy" in cfg:
-        proxy = cfg.get("proxy") or ""
+        proxy = ct_proxy if cfg.get("proxy") else ""
+    elif name in proxy_platforms:
+        proxy = ct_proxy
     else:
-        proxy = get_global("proxy", "") or os.environ.get("CT_PROXY", "")
+        proxy = ""
     try:
         random_delay = int(get_global("random_delay", 0) or os.environ.get("CT_RANDOM_DELAY", 0) or 0)
     except Exception:
