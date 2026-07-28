@@ -50,13 +50,23 @@ ct-sign/
 ### 1. 订阅仓库（自动装依赖 + 建好所有定时任务）
 
 ```bash
-ql repo https://github.com/liuyunss/ct-sign.git "" "common/.*|init\.py" "init.sh" "master"
+ql repo https://github.com/liuyunss/ct-sign.git "" "common|init\.py|run_all\.py|run_platform\.py" "init.sh" "master"
 ```
 
-参数顺序：仓库URL | 白名单(留空) | 黑名单 `common/.*|init\.py` | 初始化命令 `init.sh` | 分支 `master`。
-黑名单让 `ql repo` 不要把项目内部库文件（`common/`）和初始化脚本 `init.py` 误建成定时任务。
+参数顺序：仓库URL | 白名单(留空) | 黑名单 `common|init\.py|run_all\.py|run_platform\.py` | 初始化命令 `init.sh` | 分支 `master`。
+黑名单让 `ql repo` 不要把项目内部库文件（`common/`）、入口脚本（`run_all.py` / `run_platform.py`）和初始化脚本（`init.py`）误建成定时任务（同时兼容「按路径」和「按文件名」两种匹配方式）。
 
-执行后自动 `pip install -r requirements.txt`，并通过青龙 API 建好**每个平台 + 全部签到**的定时任务，任务名形如 `CT-Sign 福利吧 签到`、`CT-Sign 全部签到`（中文平台名，一眼能分清）。`init.py` 还会顺手删除订阅时误建的「文件名式」野任务（如 `run_all.py`、`init.py`）。
+执行后自动 `pip install -r requirements.txt`，并通过青龙 API 建好**每个平台 + 全部签到**的定时任务，任务名形如 `CT-Sign 福利吧 签到`、`CT-Sign 全部签到`（中文平台名，一眼能分清）。`init.py` 还会顺手删除订阅时误建的「文件名式」野任务（如 `common/*.py`、`run_all.py`、`run_platform.py`、`init.py`）。
+
+> **已订阅且定时任务里仍看到 `xxx.py` / `__init__.py` 这类文件名式任务？**
+> 说明当初订阅时黑名单没生效，或 `init.sh` 没被自动执行。两步彻底解决（否则每天 04:54 repo 拉取会重建野任务）：
+> 1. 在青龙「订阅管理」把本仓库订阅命令的**黑名单**改为上面的完整版，保存后点「重新拉取」；
+> 2. 在青龙「终端」执行（仓库目录名以实际为准，如 `liuyunss_ct-sign_master`）：
+>    ```bash
+>    cd /ql/data/repo/liuyunss_ct-sign_master && python3 init.py
+>    ```
+>    它会自动删除所有文件名式野任务，并建好 `CT-Sign 福利吧/科学刀/… 签到` 等友好任务（每天 00:01）。若提示缺依赖先 `pip install -r requirements.txt`。
+
 （若 `init.sh` 未自动执行，在面板「订阅管理」把该订阅的初始化命令设为 `init.sh` 再运行一次；任务建好后想重排，直接重跑 `python3 init.py` 即可，已存在的不会重复创建。）
 
 ### 2. 添加环境变量（值换成你自己的；多账号用 `&` 或换行分隔）
