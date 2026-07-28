@@ -24,6 +24,27 @@ def _http_err_msg(e):
     return f"HTTP {getattr(e, 'code', '?')}: {body}"
 
 
+def _send_env(url, method, token, payload):
+    """发送环境变量请求（payload 可为数组或单对象），返回 (ok, msg)。"""
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Authorization": f"Bearer {token}",
+                 "Content-Type": "application/json"},
+        method=method,
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as r:
+            resp = json.loads(r.read())
+        if resp.get("code") == 200:
+            return True, "ok"
+        return False, str(resp)
+    except urllib.error.HTTPError as e:
+        return False, _http_err_msg(e)
+    except Exception as e:
+        return False, str(e)
+
+
 def _get_token():
     # 1) 容器内私有令牌（兼容多种环境变量名）
     for env in ("QL_PRIVATE_TOKEN", "QL_TOKEN"):
@@ -110,32 +131,19 @@ def update_env_value(name: str, value: str):
     if not token:
         return False, "未检测到青龙 API 令牌"
     if match:
-        env_id = match.get("id")
-        body = [{"id": env_id, "name": name, "value": value,
-                 "remarks": match.get("remarks", "")}]
-        url = f"{base}/open/envs"
+        env_id = match.get("id") or match.get("_id")
+        item = {"id": env_id, "name": name, "value": value,
+                "remarks": match.get("remarks", "")}
         method = "PUT"
     else:
-        body = [{"name": name, "value": value}]
-        url = f"{base}/open/envs"
+        item = {"name": name, "value": value}
         method = "POST"
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(body).encode("utf-8"),
-        headers={"Authorization": f"Bearer {token}",
-                 "Content-Type": "application/json"},
-        method=method,
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=10) as r:
-            resp = json.loads(r.read())
-        if resp.get("code") == 200:
-            return True, "ok"
-        return False, str(resp)
-    except urllib.error.HTTPError as e:
-        return False, _http_err_msg(e)
-    except Exception as e:
-        return False, str(e)
+    url = f"{base}/open/envs"
+    # 标准青龙接受数组；部分版本要求单对象，失败且报错含 object 时改用单对象重试
+    ok, msg = _send_env(url, method, token, [item])
+    if not ok and "must be of type object" in msg:
+        ok, msg = _send_env(url, method, token, item)
+    return ok, msg
 
 
 def create_cron(name, command, schedule="1 0 * * *", remark=""):
