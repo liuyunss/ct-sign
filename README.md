@@ -36,7 +36,8 @@ ct-sign/
 ├─ config/            # 全局配置模板
 ├─ run_all.py         # 一键跑全部
 ├─ run_platform.py    # 单平台：python run_platform.py fuliba
-├─ init.sh / init.py  # 装依赖 + 自动建任务
+├─ init.sh            # ql repo 初始化命令：装依赖（任务由白名单 sign_ 自动建）
+├─ init.py            # 手动兜底工具：仅清理野任务（python3 init.py --dry-run）
 ├─ requirements.txt
 ├─ README.md
 ├─ LICENSE
@@ -73,7 +74,13 @@ ql repo https://github.com/liuyunss/ct-sign.git "sign_" "" "init.sh" "master"
 > **之前用旧命令订阅、定时任务里残留 `xxx.py` / `__init__.py` 野任务？**
 > 在青龙「订阅管理」把本仓库订阅命令改为上面的**白名单 `sign_`** 版本，保存后点「重新拉取」即可：青龙会删除该订阅之前建的任务、再只按白名单建出 `sign_*` 任务，野任务随之消失。
 >
-> （`init.py` 仍保留作为「不用 ql repo 时的手动建任务工具」，正常用 ql repo 订阅不需要它。）
+> 若重新拉取后仍残留野任务，可在青龙「终端」手动兜底清理（只删本仓库内的野任务，不碰其它任务）：
+> ```bash
+> cd /ql/data/repo/liuyunss_ct-sign_master   # 目录名以实际为准
+> python3 init.py --dry-run   # 先预览会清理哪些
+> python3 init.py             # 确认无误后再执行清理
+> ```
+> 注：`init.py` 现在只做**野任务清理**，不再建任务（建任务由 `ql repo` 白名单 `sign_*` 负责），正常用 ql repo 订阅不需要它。
 
 ### 2. 添加环境变量（值换成你自己的；多账号用 `&` 或换行分隔）
 
