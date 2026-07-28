@@ -67,6 +67,7 @@ ql repo https://github.com/liuyunss/ct-sign.git "sign_" "" "init.sh" "master"
 | `sign_youjiaoku.py` | 幼教库 |
 | `sign_pinggu.py` | 经管之家 |
 | `sign_3gbizhi.py` | 3G壁纸 |
+| `sign_pcbeta.py` | 远景论坛 |
 | `sign_all.py` | 全部签到（一次性全平台） |
 
 > **之前用旧命令订阅、定时任务里残留 `xxx.py` / `__init__.py` 野任务？**

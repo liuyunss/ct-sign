@@ -34,6 +34,7 @@ DISPLAY = {
     "youjiaoku": "幼教库",
     "pinggu": "经管之家",
     "3gbizhi": "3G壁纸",
+    "pcbeta": "远景论坛",
 }
 
 # ql repo 订阅会自动把仓库里的 .py 当成任务建出来（名字是文件名），这些是要清理的野任务特征
