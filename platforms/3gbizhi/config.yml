@@ -31,8 +31,10 @@ login:
   success_code: 1                # 登录成功时的 code 值（按站点实际调整）
   auth_env: CT_3GBIZHI_AUTH      # 一体化变量名（cookie||账号||密码）
 
-# 注意：3g壁纸 前端有腾讯 EdgeOne CDN/WAF，沙箱高频请求会被临时封 IP（403 请求无权访问）；
-#       在青龙（独立 IP、正常用法）不受影响。success_codes 等判定词若与实测不符，按返回微调即可。
+# 注意：3g壁纸 前端有腾讯 EdgeOne CDN/WAF。
+#   拦截特征：IP 被封时返回 {"code":404,"msg":"An error occurred","time":<数字>}（time 为数字、msg 英文，
+#             与站点正常响应 {"code":401,"msg":"请登录后操作","time":"<字符串>"} 不同）。
+#   若持续 404：青龙容器 IP 可能被 WAF 临时封禁，可配 CT_PROXY 代理换 IP，或等待封禁过期。
 
 tasks:
   - name: 每日签到
@@ -58,3 +60,4 @@ tasks:
       - "请登录"
       - "未登录"
       - "登录后操作"
+      - "An error occurred"     # EdgeOne WAF 拦截特征：IP 被封时返回此英文错误（非站点正常响应）
