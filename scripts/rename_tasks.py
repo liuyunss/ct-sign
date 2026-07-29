@@ -3,7 +3,7 @@
 """青龙定时任务中文名重命名（订阅拉取后由 init.sh 自动调用，无需手动）。
 
 背景：ql repo 白名单 sign_ 建出的任务名默认是脚本文件名（如 sign_3gbizhi.py），
-无法自定义成中文。本脚本把这些任务重命名为中文友好名（如「3G壁纸 签到」），
+无法自定义成中文。本脚本把这些任务重命名为平台中文名（如「3G壁纸」），
 复用青龙自带 OpenAPI（容器内自动读取 /ql/config/auth.json 令牌）。
 
 安全边界：
@@ -79,12 +79,12 @@ def main():
                 continue
             key = m.group(1)
             if key == "all":
-                new_name = "全部签到"
+                new_name = "全部"
             else:
                 pname = pmap.get(key)
                 if not pname:
                     continue
-                new_name = f"{pname} 签到"
+                new_name = pname  # 只显示平台名，不带「签到」二字
             if name == new_name:
                 continue
             ok, msg = update_cron(
