@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import re
+import urllib.parse
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -178,6 +179,39 @@ TP_FAIL_KEYWORDS = [
 TP_OK_KEYWORDS = ["登录成功", "签到成功", "成功"]
 
 
+def _dig(d, path):
+    """按点路径从字典取值，如 'data.userinfo.user_id'。取不到返回 None。"""
+    cur = d
+    for part in (path or "").split("."):
+        if isinstance(cur, dict) and part in cur:
+            cur = cur[part]
+        else:
+            return None
+    return cur
+
+
+def _inject_tp_cookies(session, jdata, fields, base_url):
+    """登录成功后，从响应 JSON 按 cookie_fields 提取字段写入 Cookie。
+
+    参考：3G壁纸 登录接口仅返回 JSON（不设 Set-Cookie），需手动把
+    data.userinfo.user_id -> uid、data.userinfo.token -> token 注入 Cookie，
+    后续签到接口才能识别登录态。
+    """
+    try:
+        host = urllib.parse.urlparse(base_url).netloc
+    except Exception:
+        host = ""
+    for cname, jpath in (fields or {}).items():
+        val = _dig(jdata, jpath)
+        if val is None:
+            continue
+        try:
+            session.cookies.set(cname, str(val),
+                                domain=host or None, path="/")
+        except Exception:
+            pass
+
+
 def thinkphp_login(
     base_url: str,
     account: str,
@@ -189,6 +223,7 @@ def thinkphp_login(
     password_field: str = "password",
     success_code: int = 1,
     extra_fields: dict | None = None,
+    cookie_fields: dict | None = None,
     proxy: str = "",
     verify_ssl: bool = True,
     timeout: int = DEFAULT_TIMEOUT,
@@ -257,6 +292,8 @@ def thinkphp_login(
         code = j.get("code")
         msg = str(j.get("msg") or j.get("message") or "")
         if code == success_code:
+            if cookie_fields:
+                _inject_tp_cookies(s, j, cookie_fields, base)
             return _cookie_header(s)
         if msg:
             raise LoginError(msg)

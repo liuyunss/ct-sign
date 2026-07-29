@@ -245,6 +245,7 @@ class BaseSigner(ABC):
                 password_field=login_cfg.get("password_field", "password"),
                 success_code=int(login_cfg.get("success_code", 1)),
                 extra_fields=login_cfg.get("extra_fields"),
+                cookie_fields=login_cfg.get("cookie_fields"),
                 proxy=self.proxy,
                 verify_ssl=verify_ssl,
                 timeout=DEFAULT_TIMEOUT,

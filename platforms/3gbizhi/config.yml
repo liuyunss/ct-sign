@@ -34,6 +34,11 @@ login:
   password_field: "password"     # 密码字段名
   success_code: 1                # 登录成功时的 code 值（按站点实际调整）
   auth_env: CT_3GBIZHI_AUTH      # 一体化变量名（cookie||账号||密码）
+  # 关键：登录接口仅返回 JSON（不设 Set-Cookie），需把 userinfo 里的 uid/token
+  #       手动注入 Cookie，后续签到接口才能识别登录态（参考可用脚本逻辑）。
+  cookie_fields:
+    uid: "data.userinfo.user_id"
+    token: "data.userinfo.token"
 
 # 注意：3g壁纸 前端有腾讯 EdgeOne CDN/WAF。
 #   拦截特征：IP 被封时返回 {"code":404,"msg":"An error occurred","time":<数字>}（time 为数字、msg 英文，
@@ -44,10 +49,11 @@ login:
 tasks:
   - name: 每日签到
     type: sign
-    url: "/api/user/checkin.html"
-    method: get
+    url: "/api/user/setUserSignin"
+    method: post
     encoding: utf-8
-    # 站点以 XHR 调用该接口；带 Referer 防 EdgeOne WAF 拦截（实测缺 Referer 会 404）
+    # 站点以 XHR 调用该接口；带 Referer 防 EdgeOne WAF 拦截（实测缺 Referer 会 404）。
+    # 参考可用脚本：POST /api/user/setUserSignin，无需额外参数，登录态靠 uid/token Cookie 识别。
     headers:
       X-Requested-With: "XMLHttpRequest"
       Referer: "https://www.3gbizhi.com/user/index.html"

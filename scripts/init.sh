@@ -28,3 +28,9 @@ echo "[CT-Sign] 安装 Python 依赖..."
 python3 -m pip install -r requirements.txt -q
 
 echo "[CT-Sign] 依赖就绪。定时任务由 ql repo 白名单 sign_ 自动建出（每个平台一行任务）。"
+
+# 把白名单建出的英文名任务（sign_xxx.py）重命名为中文友好名（如「3G壁纸 签到」）。
+# 在青龙容器内运行，自动读取容器内 auth.json 令牌；拿不到令牌或出错则静默跳过，
+# 不影响签到。失败也不中断 init.sh（set -e）。
+echo "[CT-Sign] 将定时任务重命名为中文名..."
+python3 scripts/rename_tasks.py || true

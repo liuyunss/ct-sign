@@ -192,6 +192,38 @@ def list_crons():
         return None, str(e)
 
 
+def update_cron(cron_id, name, command, schedule, remark=""):
+    """更新一个定时任务（用于把白名单建出的英文名重命名为中文友好名）。
+
+    仅改 name 字段，不动 command/schedule（保留 ql repo 建出的原值），
+    返回 (ok, msg)。
+    """
+    base = os.environ.get("QL_URL", "http://127.0.0.1:5700").rstrip("/")
+    token = _get_token()
+    if not token:
+        return False, "未检测到青龙 API 令牌"
+    body = [{
+        "id": cron_id,
+        "name": name,
+        "command": command,
+        "schedule": schedule,
+        "remark": remark,
+    }]
+    url = f"{base}/open/crons"
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(body).encode("utf-8"),
+        headers={"Authorization": f"Bearer {token}",
+                 "Content-Type": "application/json"},
+        method="PUT",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as r:
+            return True, r.read().decode("utf-8", "ignore")
+    except Exception as e:
+        return False, str(e)
+
+
 def delete_cron(cron_id):
     """删除一个定时任务。返回 (ok, msg)。"""
     base = os.environ.get("QL_URL", "http://127.0.0.1:5700").rstrip("/")
