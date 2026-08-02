@@ -20,6 +20,20 @@ for _p in (ROOT, os.path.join(ROOT, "scripts")):
     if _p and _p not in sys.path:
         sys.path.insert(0, _p)
 
+# 青龙 ql repo 部署：白名单只把 sign_*.py 复制到 /ql/data/scripts/，
+# common/ 等依赖留在 /ql/data/repo/<同名目录>，需扫描该目录定位真正的仓库根。
+ql_repo = "/ql/data/repo"
+if os.path.isdir(ql_repo):
+    try:
+        for _name in sorted(os.listdir(ql_repo)):
+            _cand = os.path.join(ql_repo, _name)
+            if os.path.isdir(os.path.join(_cand, "common")):
+                for _p in (_cand, os.path.join(_cand, "scripts")):
+                    if _p and _p not in sys.path:
+                        sys.path.insert(0, _p)
+    except OSError:
+        pass
+
 from common.notify_hook import flush_aggregated, ENABLED
 
 
