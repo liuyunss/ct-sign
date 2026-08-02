@@ -17,6 +17,12 @@ ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
+# 青龙自带 notify 模块（含 send_notify）位于 /ql/data/scripts，加入 path
+# 以便复用面板已配的推送渠道（与 smzdm_script 等仓库行为一致）。
+_ql_scripts = "/ql/data/scripts"
+if os.path.isdir(_ql_scripts) and _ql_scripts not in sys.path:
+    sys.path.insert(0, _ql_scripts)
+
 # 兜底：青龙 init.sh 可能未执行，缺第三方依赖时自动按 requirements.txt 安装
 try:
     import yaml, requests  # noqa: F401
