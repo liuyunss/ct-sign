@@ -1,0 +1,25 @@
+# ============================================================
+# CT-Sign 平台配置 —— Hyperdown（https://hyperdown.net）
+# ============================================================
+# 登录：邮箱+密码 → POST /api/v1/auth/login → 拿 access_token
+# 签到：POST /api/v1/me/checkins（请求体经 SealJSON 加密）
+# 引擎自带登录与加密逻辑，无需手动取 cookie。
+# 凭据：CT_HYPERDOWN_AUTH（一体化 `token||邮箱||密码`，token 段留空即可）
+#       或 CT_HYPERDOWN_COOKIE（纯 access_token，需手动从客户端抓取）
+# 依赖：cryptography、PyNaCl（init.sh 会自动安装）
+# ============================================================
+
+platform: Hyperdown
+engine: hyperdown
+base_url: "https://hyperdown.net"
+cookie_env: CT_HYPERDOWN_COOKIE
+
+login:
+  auth_env: CT_HYPERDOWN_AUTH
+  login_type: hyperdown        # 引擎自处理邮箱密码登录
+
+tasks:
+  - name: 每日签到
+    type: sign
+    api_base_url: "https://hyperdown.net"
+    user_agent: "Go-http-client/1.1"

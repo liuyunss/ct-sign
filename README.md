@@ -32,11 +32,13 @@ ct-sign/
 ├─ platforms/         # 个性化：每个平台一个目录，只放 config.yml
 │  ├─ _template/      # 示例（不直接运行）
 │  ├─ fuliba/
-│  └─ 55188/
+│  ├─ 55188/
+│  └─ hyperdown/
 ├─ signs/             # 各平台签到入口脚本（sign_*.py 本体）
 │  ├─ sign_fuliba.py
 │  ├─ sign_pcbeta.py
 │  ├─ sign_55188.py
+│  ├─ sign_hyperdown.py
 │  └─ ...（每个平台一个，约定只一行 main("平台key")）
 ├─ scripts/           # 内部通用脚本（不被 ql repo 白名单匹配，不会建成任务）
 │  ├─ run_all.py      # 一键跑全部（sign_all.py 转发到这里）
@@ -79,6 +81,7 @@ ql repo https://github.com/liuyunss/ct-sign.git "sign_" "" "init.sh" "master"
 | `sign_3gbizhi.py` | 3G壁纸 |
 | `sign_pcbeta.py` | 远景论坛 |
 | `sign_55188.py` | 55188 理想论坛 |
+| `sign_hyperdown.py` | Hyperdown |
 | `sign_all.py` | 全部签到（一次性全平台） |
 
 > **之前用旧命令订阅、定时任务里残留 `xxx.py` / `__init__.py` 野任务？**
@@ -108,6 +111,7 @@ ql env add 'CT_GOPOJIE_AUTH=||yourname@example.com||你的密码'
 ql env add 'CT_KXDAO_AUTH=||yourname@example.com||你的密码'
 ql env add 'CT_3GBIZHI_AUTH=||账号||密码'
 ql env add 'CT_PCBETA_AUTH=||yourname@example.com||你的密码'
+ql env add 'CT_HYPERDOWN_AUTH=||yourname@example.com||你的密码'
 
 # —— 必须手动给 cookie（登录有滑块/极验验证码，无法自动登录）——
 ql env add 'CT_YOUJIAOKU_COOKIE=粘贴的cookie'
@@ -149,6 +153,7 @@ ql env add 'CT_RANDOM_DELAY_MIN=60'
 | 幼教库 YouJiaoKu | https://www.youjiaoku.com | `CT_YOUJIAOKU_COOKIE`（登录有滑块验证码，不支持账号密码，需手动提供 cookie） |
 | 经管之家 PingGu | https://bbs.pinggu.org | `CT_PINGGU_COOKIE`（登录为自建 passport+极验滑块，不支持账号密码，需手动提供 cookie） |
 | 55188 理想论坛 | https://www.55188.com | `CT_55188_COOKIE`（登录含 passport 校验，不支持账号密码自动登录，需手动提供 cookie） |
+| Hyperdown | https://hyperdown.net | `CT_HYPERDOWN_AUTH`（邮箱密码登录，签到经 SealJSON 加密；也可只用 `CT_HYPERDOWN_COOKIE` 手动提供 access_token） |
 
 > 变量规则：**支持账号密码自动续期**的平台用 `CT_<平台>_AUTH`（一体化 `cookie||账号||密码`，也可只用 `CT_<平台>_COOKIE`）；**不支持**（有验证码无法自动登录）的平台只用 `CT_<平台>_COOKIE`。
 
