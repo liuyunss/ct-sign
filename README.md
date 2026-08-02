@@ -34,12 +34,14 @@ ct-sign/
 │  ├─ _template/      # 示例（不直接运行）
 │  ├─ fuliba/
 │  ├─ 55188/
-│  └─ hyperdown/
+│  ├─ hyperdown/
+│  └─ laowang/
 ├─ signs/             # 各平台签到入口脚本（sign_*.py 本体）
 │  ├─ sign_fuliba.py
 │  ├─ sign_pcbeta.py
 │  ├─ sign_55188.py
 │  ├─ sign_hyperdown.py
+│  ├─ sign_laowang.py
 │  └─ ...（每个平台一个，约定只一行 main("平台key")）
 ├─ scripts/           # 内部通用脚本（不被 ql repo 白名单匹配，不会建成任务）
 │  ├─ run_all.py      # 一键跑全部（sign_all.py 转发到这里）
@@ -83,6 +85,7 @@ ql repo https://github.com/liuyunss/ct-sign.git "sign_" "" "init.sh" "master"
 | `sign_pcbeta.py` | 远景论坛 |
 | `sign_55188.py` | 55188 理想论坛 |
 | `sign_hyperdown.py` | Hyperdown |
+| `sign_laowang.py` | 老王论坛 |
 | `sign_all.py` | 全部签到（一次性全平台） |
 | `sign_flush.py` | 聚合推送（仅 `CT_AGGREGATE_NOTIFY=1` 时启用，设在所有签到之后） |
 
@@ -119,6 +122,10 @@ ql env add 'CT_HYPERDOWN_AUTH=||yourname@example.com||你的密码'
 ql env add 'CT_YOUJIAOKU_COOKIE=粘贴的cookie'
 ql env add 'CT_PINGGU_COOKIE=粘贴的cookie'
 ql env add 'CT_55188_COOKIE=粘贴的cookie'
+ql env add 'CT_LAOWANG_COOKIE=粘贴的cookie'
+
+# —— 代理（仅对 config.yml 里 proxy: true 的平台生效，如老王论坛）——
+ql env add 'CT_PROXY=http://127.0.0.1:7890'
 ```
 
 取 cookie 方法见 `docs/config-guide.md`。
@@ -156,6 +163,7 @@ ql env add 'CT_RANDOM_DELAY_MIN=60'
 | 经管之家 PingGu | https://bbs.pinggu.org | `CT_PINGGU_COOKIE`（登录为自建 passport+极验滑块，不支持账号密码，需手动提供 cookie） |
 | 55188 理想论坛 | https://www.55188.com | `CT_55188_COOKIE`（登录含 passport 校验，不支持账号密码自动登录，需手动提供 cookie） |
 | Hyperdown | https://hyperdown.net | `CT_HYPERDOWN_AUTH`（邮箱密码登录，签到经 SealJSON 加密；也可只用 `CT_HYPERDOWN_COOKIE` 手动提供 access_token） |
+| 老王论坛 | https://laowang.vip | `CT_LAOWANG_COOKIE`（站点含 Cloudflare 验证，无法账号密码自动登录，需手动提供 cookie；大陆需代理，配合全局 `CT_PROXY` 使用） |
 
 > 变量规则：**支持账号密码自动续期**的平台用 `CT_<平台>_AUTH`（一体化 `cookie||账号||密码`，也可只用 `CT_<平台>_COOKIE`）；**不支持**（有验证码无法自动登录）的平台只用 `CT_<平台>_COOKIE`。
 

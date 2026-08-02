@@ -1,0 +1,48 @@
+# ============================================================
+# CT-Sign 平台配置 —— 老王论坛（Discuz! + k_misign 签到插件）
+# ============================================================
+# 站点：https://laowang.vip （大陆需代理访问）
+# 签到插件：k_misign（页面 plugin.php?id=k_misign:sign）
+# 提交方式：GET plugin.php?id=k_misign:sign&operation=qiandao&formhash={formhash}
+# 页面编码：UTF-8
+# Cookie 来源：手动从浏览器抓取（站点含 Cloudflare 验证，无法账号密码自动登录）
+# 代理：本站大陆不可直连，config 里 proxy: true，走全局 CT_PROXY 环境变量
+# ============================================================
+
+platform: 老王论坛
+engine: forum
+base_url: "https://laowang.vip"
+cookie_env: CT_LAOWANG_COOKIE
+
+# 老王论坛需代理访问（大陆直连不通）：在青龙建环境变量 CT_PROXY 放代理地址
+# （如 http://127.0.0.1:7890 或 socks5://127.0.0.1:7890），本平台自动启用。
+proxy: true
+
+tasks:
+  - name: 每日签到
+    type: sign
+    sign_url: "plugin.php?id=k_misign:sign"
+    action_url: "plugin.php?id=k_misign:sign&operation=qiandao&formhash={formhash}"
+    method: get
+    encoding: utf-8
+    payload:
+      formhash: "{formhash}"
+    formhash_re: 'name="formhash" value="([a-f0-9]+)"'
+    success_keywords:
+      - 签到成功
+      - 成功签到
+      - 恭喜
+      - 已签到
+    already_keywords:
+      - 已经签到
+      - 今日已
+      - 您今天已经签到
+      - 签到过
+      - 您今日已签到
+    fail_keywords:
+      - 请先登录
+      - 未登录
+      - 游客
+      - 登录
+      - Access Denied
+      - 插件不存在
