@@ -34,14 +34,6 @@ fi
 
 echo "[CT-Sign] 定时任务由 ql repo 白名单 sign_ 自动建出（每个平台一行任务）。"
 
-# 可选：通知聚合 hook。仅当 CT_AGGREGATE_NOTIFY=1 时，monkeypatch 青龙
-# send_notify，把本仓库及青龙里其他仓库的推送攒成一天一批（由 sign_flush.py 统一发）。
-# 不动别人代码，失败也不影响其它步骤。
-if [ "${CT_AGGREGATE_NOTIFY:-}" = "1" ]; then
-  echo "[CT-Sign] 启用通知聚合 hook..."
-  PYTHONPATH="$ROOT_DIR:${PYTHONPATH}" python3 -c "import sys; sys.path.insert(0,'$ROOT_DIR'); from common.notify_hook import install; print('[hook] installed:', install())" || true
-fi
-
 # 把白名单建出的英文名任务（sign_xxx.py）重命名为中文友好名（如「3G壁纸 签到」）。
 # 在青龙容器内运行，自动读取容器内 auth.json 令牌；拿不到令牌或出错则静默跳过，
 # 不影响签到。失败也不中断 init.sh（set -e）。

@@ -12,7 +12,6 @@
 - **凭证两种写法**：`CT_<平台>_COOKIE`（纯 Cookie）或 `CT_<平台>_AUTH`（一体化 `cookie||账号||密码`，任意段留空即跳过）。Cookie 优先，失效时自动用账号密码登录刷新并写回，实现续期。
 - **密钥分离**：Cookie 只存青龙环境变量，代码与仓库不含任何凭证。
 - **通知**：每个平台签到结束都会推送结果。**优先调用青龙自带 `send_notify`**（复用你在青龙面板配好的通道，和"仓库变动"通知走同一条线，无需再单独配）；非青龙环境（本地调试）才走脚本内直推（Server酱/Pushplus/Bark/企业微信/钉钉，需自备变量）兜底。设置 `CT_DISABLE_NOTIFY=1` 可只打印不推送。**彩蛋**：每次推送末尾会自动附一句随机「一言」（拉取 `hitokoto.cn`，失败用本地兜底文案）；设 `CT_DISABLE_QUOTE=1` 可关闭。
-- **聚合推送（可选）**：设青龙环境变量 `CT_AGGREGATE_NOTIFY=1`，本仓库会在 `init.sh` 时 hook 青龙全局 `send_notify`，把**本仓库及青龙里其他仓库**的推送全部攒进缓存，由 `sign_flush.py` 任务（cron 设在所有签到之后）合并成**一天一条**统一发出。**不改任何别人脚本**——别人的脚本照样 `from notify import send_notify`，只是调用被接管进缓存。不设置该变量则完全不生效，各任务各自推送。
 - **免 key 自动建任务**：`init.sh` 被青龙 `ql repo` 订阅时调用，容器内自动建好所有定时任务。
 
 ## 目录结构
@@ -84,7 +83,6 @@ ql repo https://github.com/liuyunss/ct-sign.git "sign_" "" "init.sh" "master"
 | `sign_55188.py` | 55188 理想论坛 |
 | `sign_hyperdown.py` | Hyperdown |
 | `sign_all.py` | 全部签到（一次性全平台） |
-| `sign_flush.py` | 聚合推送（仅 `CT_AGGREGATE_NOTIFY=1` 时启用，设在所有签到之后） |
 
 > **之前用旧命令订阅、定时任务里残留 `xxx.py` / `__init__.py` 野任务？**
 > 在青龙「订阅管理」把本仓库订阅命令改为上面的**白名单 `sign_`** 版本，保存后点「重新拉取」即可：青龙会删除该订阅之前建的任务、再只按白名单建出 `sign_*` 任务，野任务随之消失。

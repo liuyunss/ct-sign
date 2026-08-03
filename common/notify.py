@@ -142,16 +142,6 @@ def _random_quote() -> str:
 
 
 def notify(title, content):
-    # 0) 聚合模式：本仓库自身也只写缓存，由 flush 任务统一推送
-    if os.environ.get("CT_AGGREGATE_NOTIFY", "").strip() in ("1", "true", "True", "yes", "YES"):
-        try:
-            from .notify_hook import _write_cache
-            _write_cache(title, content, source="ct-sign")
-        except Exception:
-            pass
-        print(f"\n==== {title} ====\n{content}\n")
-        return
-
     # 1) 始终打印，保证任务日志里有完整结果（青龙也会抓取日志）
     print(f"\n==== {title} ====\n{content}\n")
 
