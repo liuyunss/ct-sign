@@ -157,10 +157,12 @@ ql env add 'CT_RANDOM_DELAY_MIN=60'
 | 经管之家 PingGu | https://bbs.pinggu.org | `CT_PINGGU_COOKIE`（登录为自建 passport+极验滑块，不支持账号密码，需手动提供 cookie） |
 | 55188 理想论坛 | https://www.55188.com | `CT_55188_COOKIE`（登录含 passport 校验，不支持账号密码自动登录，需手动提供 cookie） |
 | Hyperdown | https://hyperdown.net | `CT_HYPERDOWN_AUTH`（邮箱密码登录，签到经 SealJSON 加密；也可只用 `CT_HYPERDOWN_COOKIE` 手动提供 access_token） |
+| WorkBuddy（Buddy 加油站） | 客户端登录态 | `CT_WORKBUDDY_COOKIE`（客户端 refreshToken；也可 `CT_WORKBUDDY_AUTH` / `CT_WORKBUDDY_TOKEN`，见 [docs/workbuddy.md](docs/workbuddy.md)） |
 
 > 变量规则：**支持账号密码自动续期**的平台用 `CT_<平台>_AUTH`（一体化 `cookie||账号||密码`，也可只用 `CT_<平台>_COOKIE`）；**不支持**（有验证码无法自动登录）的平台只用 `CT_<平台>_COOKIE`。
+> WorkBuddy 是唯一用**登录态 token** 的平台（不是 cookie/账号密码），且其签到接口未公开、需填真实端点，详见 [docs/workbuddy.md](docs/workbuddy.md)。
 
-平台涵盖 Discuz / WordPress / ThinkPHP 三类，分别走 `forum` / `api` 引擎；加新平台见 `docs/add-platform.md`。
+平台涵盖 Discuz / WordPress / ThinkPHP 三类，分别走 `forum` / `api` 引擎；WorkBuddy 走 `workbuddy` 引擎。加新平台见 `docs/add-platform.md`。
 
 ## 文档
 
@@ -168,3 +170,4 @@ ql env add 'CT_RANDOM_DELAY_MIN=60'
 - [配置与取 Cookie 指南](docs/config-guide.md)
 - [模板填写指南](docs/template-guide.md)
 - [如何新增一个平台](docs/add-platform.md)
+- [WorkBuddy 签到（token 变量位 + 端点探测）](docs/workbuddy.md)

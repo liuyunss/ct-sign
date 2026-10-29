@@ -54,6 +54,8 @@ cookie||                # 只有 cookie（也可只写 cookie，不带 ||）
 
 > 每平台**最多 2 个变量名**：`CT_<平台>_COOKIE`（纯 cookie）和 `CT_<平台>_AUTH`（一体化）。只用 cookie 就配 COOKIE；想自动续期就配 AUTH（或两者都配，AUTH 优先）。
 
+**唯一例外：WorkBuddy**。它不用 cookie/账号密码，用的是客户端登录态 token，变量位见 [docs/workbuddy.md](docs/workbuddy.md)：`CT_WORKBUDDY_COOKIE`（主）／`CT_WORKBUDDY_AUTH`（一体化，写 `token||`）／`CT_WORKBUDDY_TOKEN`（别名），优先级依次递减。
+
 ## 二、Cookie 优先 + 账号密码自动刷新（推荐）
 
 不少论坛的 Cookie 隔一阵就失效。框架采用 **Cookie 优先、账号密码自动续期** 策略：

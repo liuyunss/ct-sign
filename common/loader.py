@@ -73,7 +73,9 @@ def load_platform(name):
     signers = []
     for task in cfg.get("tasks", []):
         tcfg = {"base_url": base_url, "cookie_env": cookie_env,
-                "login": cfg.get("login")}
+                "login": cfg.get("login"),
+                # 引擎可自取凭据（如从本机客户端登录态读 token）时放行空 cookie
+                "allow_engine_credential": cfg.get("allow_engine_credential", False)}
         tcfg.update(task)  # 任务级字段覆盖公共字段
         signers.append(cls(
             platform=cfg.get("platform", name),

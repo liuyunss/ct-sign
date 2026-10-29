@@ -20,6 +20,8 @@ ENV/
 # config.py 会自动加载仓库根的 .env（本地调试放 Cookie 用），绝不提交！
 .env
 .env.*
+# 例外：环境变量模板要提交（gitignore 不支持行尾注释，注释独立成行）
+!.env.example
 *.local.yml
 *.secret.*
 

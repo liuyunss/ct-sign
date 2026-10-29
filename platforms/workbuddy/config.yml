@@ -1,0 +1,66 @@
+# ============================================================
+# CT-Sign 平台配置 —— WorkBuddy（Buddy 加油站每日签到）
+# ============================================================
+# 【凭证变量位置】三选一即可，引擎按此顺序取（实测三个都能识别）：
+#   1) CT_WORKBUDDY_COOKIE   纯 token（项目标准变量，推荐，直接用）
+#   2) CT_WORKBUDDY_AUTH     一体化 `token||账号||密码`；workbuddy 无账号密码，
+#                            写成 `token||` 即可（项目标准变量）
+#   3) CT_WORKBUDDY_TOKEN    token 别名，方便直接粘一串进来（快捷位）
+#
+#   三者都空时才回退读本机客户端登录态文件——青龙容器没有该文件，线上必须显式配一个。
+#   账号密码登录目前不支持：本引擎无 login 通道，且登录端点未公开。
+#
+#   本地调试：写仓库根 .env（自动加载，已 gitignore）。线上：填青龙环境变量。
+#
+# 【token 是什么】客户端登录态 refreshToken（约 700 字符 JWT），不是浏览器 cookie，
+#   也无需先换 access_token —— token_url 留空即直接当 Bearer 用。
+#
+# 【签到端点】该接口未公开、客户端渲染层加密，无法静态提取。url 留空时引擎自动
+#   按 sign_candidates 探测（后端对不存在路由固定返回 "404 Route Not Found"，
+#   是可靠信号），命中即签到。摸到真实端点后把 URL 填进 tasks[0].url，
+#   探测只作兜底；关掉探测用 CT_WORKBUDDY_DISCOVER=0。
+#
+# 【token 轮换】若签到响应带回新的 refreshToken，引擎自动写回来源变量
+#   （青龙环境变量，或非青龙环境的 .cache/tokens.json）。
+#
+# 【报错速查】
+#   "本机客户端已把 refreshToken 改成信封加密" → 客户端 v5.7.6+ 加密了登录态，
+#   本机读不到明文，必须把明文 token 填进上面三个变量之一。
+# ============================================================
+
+platform: WorkBuddy
+engine: workbuddy
+base_url: "https://www.workbuddy.cn"
+
+# 主凭证变量（另两个兜底位见文件头）
+cookie_env: CT_WORKBUDDY_COOKIE
+
+token_url: ""        # 留空 = token 直接当 Bearer，无需换 access_token
+auto_probe: true     # url 留空时自动试 sign_candidates
+
+# 未设任何凭证变量时放行空 cookie，交给引擎自己回退（本机登录态文件 / 别名变量）
+allow_engine_credential: true
+
+tasks:
+  - name: Buddy 加油站
+    type: sign
+    url: ""                       # ← 摸到真实签到 URL 后填这里（留空=自动探测）
+    method: post
+    headers:
+      Content-Type: application/json
+    json: {}
+    # 探测候选（后端 404 即跳过）；找到真实端点后请填到上面的 url
+    sign_candidates:
+      - /api/v1/buddy/sign
+      - /api/v1/buddy/checkin
+      - /api/v1/buddy/daily-sign
+      - /api/v1/user/checkin
+      - /api/v1/user/signin
+      - /api/v1/signin
+      - /api/user/signin
+      - /api/user/checkin
+    already_keywords: ["已签到", "已领取", "已领", "今日已", "已经签到"]
+    fail_keywords: ["未登录", "token失效", "token 失效", "登录已过期", "invalid token"]
+    success_keywords: ["签到成功", "领取成功", "success"]
+    code_field: code
+    success_codes: [0, 200]

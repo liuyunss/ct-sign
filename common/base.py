@@ -69,6 +69,10 @@ class BaseSigner(ABC):
     def run(self) -> SignResult:
         items, source_var, source_is_auth = self._resolve_items()
         if not items:
+            # 引擎能自己拿到凭据（例如从桌面客户端登录态文件读 token），
+            # 放行空 cookie 交给 _run_one 自行兜底；否则提示缺凭证环境变量。
+            if self.task_cfg.get("allow_engine_credential"):
+                return self._run_one("")
             login_cfg = self.task_cfg.get("login") or {}
             hints = []
             if login_cfg.get("auth_env"):
