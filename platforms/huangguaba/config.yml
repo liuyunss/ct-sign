@@ -1,0 +1,32 @@
+# 黄瓜吧 自研 PHP 站点（https://www.huangguaba.com）
+#
+# 站点：自研 PHP + /api/*.php JSON 接口（非 Discuz）。
+# 登录：/login.php 含算术验证码，故本脚本只走「cookie/token 优先」，不自动登录。
+#       凭证填 CT_HUANGGUABA_COOKIE（网页版登录后复制的完整 Cookie 字符串）。
+# 任务（自定义 huangguaba 引擎，遍历型）：
+#   · 签到   POST /api/score.php        action=signin
+#   · 评论   对首页最新 N 帖发评论（content 可配）
+#   · 点赞   对首页最新 N 帖下的前 M 条评论点赞
+# 注意：评论/点赞会留下公开痕迹，请确认 content 与数量后再在青龙实跑。
+
+platform: 黄瓜吧
+engine: huangguaba
+base_url: "https://www.huangguaba.com"
+cookie_env: CT_HUANGGUABA_COOKIE
+
+tasks:
+  - name: 每日签到
+    task_type: signin
+
+  - name: 自动评论
+    task_type: comment
+    count: 3                      # 对首页最新 3 个非公告帖发评论
+    content: "支持"               # 评论内容（请改成你想发的，避免敏感/广告词）
+    skip_post_ids: []             # 额外跳过的帖子 id（默认已跳过公告 5066）
+
+  - name: 自动点赞
+    task_type: like
+    count: 3                      # 对首页最新 3 个非公告帖
+    per_post: 5                   # 每帖最多点赞前 5 条评论
+    content: "支持"               # 目标帖无评论时，先发这条评论再点赞（闭环）
+    skip_post_ids: []
